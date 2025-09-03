@@ -1,16 +1,51 @@
-# app
+   How to Run Flutter Project
 
-A new Flutter project.
+1. Install Flutter & Dart
 
-## Getting Started
+Download Flutter SDK: https://docs.flutter.dev/get-started/install
 
-This project is a starting point for a Flutter application.
+Add the flutter/bin folder to your system PATH.
 
-A few resources to get you started if this is your first Flutter project:
+Verify installation by running:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+>>> flutter doctor
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+⚠️ Important:
+
+You must have Dart version 3.9.0 or higher.
+
+Check Dart version:
+
+>>> dart --version
+
+If your version is lower, upgrade Flutter:
+
+>>> flutter upgrade
+
+2. Open the Project
+
+Open the project folder in your editor (VS Code, Android Studio, or any editor).
+
+3. Install Dependencies
+
+>>> flutter pub get
+
+4. Set Up a Device
+
+Connect a physical device (USB Debugging enabled),
+
+Or start an Android Emulator.
+
+Verify device connection:
+
+>>> flutter devices
+
+5. Run the Project
+
+>>> flutter run
+
+🔑 Admin Login Credentials
+
+Email: muhammadayan6700@gmail.com
+
+Password: ayan@123
