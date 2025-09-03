@@ -30,17 +30,7 @@ Open the project folder in your editor (VS Code, Android Studio, or any editor).
 
 >>> flutter pub get
 
-4. Set Up a Device
-
-Connect a physical device (USB Debugging enabled),
-
-Or start an Android Emulator.
-
-Verify device connection:
-
->>> flutter devices
-
-5. Run the Project
+4. Run the Project
 
 >>> flutter run
 
