@@ -12,8 +12,7 @@ class CustomerServicePage extends StatefulWidget {
 class _CustomerServicePageState extends State<CustomerServicePage> {
   final _firestore = FirebaseFirestore.instance;
   final _controller = TextEditingController();
-  final String currentUser = 'user1'; // Simulate a user ID; replace with actual auth if needed
-
+  final String currentUser = 'user1';
   void sendMessage(String text) {
     if (text.isNotEmpty) {
       _firestore.collection('messages').add({
@@ -22,7 +21,6 @@ class _CustomerServicePageState extends State<CustomerServicePage> {
         'timestamp': FieldValue.serverTimestamp(),
       });
       _controller.clear();
-      // Simulate bot response
       Future.delayed(const Duration(seconds: 1), () {
         _firestore.collection('messages').add({
           'text': getBotResponse(text),
@@ -50,10 +48,16 @@ class _CustomerServicePageState extends State<CustomerServicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: () {}),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {},
+        ),
         title: Text(
           "Customer Service",
-          style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
         ),
         actions: [
           IconButton(icon: const Icon(Icons.phone), onPressed: () {}),
@@ -71,7 +75,8 @@ class _CustomerServicePageState extends State<CustomerServicePage> {
                   .orderBy('timestamp')
                   .snapshots(),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
                 final messages = snapshot.data!.docs.reversed;
                 List<Widget> messageWidgets = [];
                 for (var message in messages) {
@@ -84,10 +89,7 @@ class _CustomerServicePageState extends State<CustomerServicePage> {
                   );
                   messageWidgets.add(messageWidget);
                 }
-                return ListView(
-                  reverse: true,
-                  children: messageWidgets,
-                );
+                return ListView(reverse: true, children: messageWidgets);
               },
             ),
           ),
@@ -106,7 +108,10 @@ class _CustomerServicePageState extends State<CustomerServicePage> {
                     ),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.emoji_emotions), onPressed: () {}),
+                IconButton(
+                  icon: const Icon(Icons.emoji_emotions),
+                  onPressed: () {},
+                ),
                 IconButton(icon: const Icon(Icons.mic), onPressed: () {}),
                 IconButton(
                   icon: const Icon(Icons.send),
@@ -132,7 +137,9 @@ class MessageBubble extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Column(
-        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Material(
             borderRadius: BorderRadius.circular(20),
@@ -149,7 +156,7 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           Text(
-            '09:41', // Static for simplicity; update with real timestamp if needed
+            '09:41',
             style: const TextStyle(fontSize: 10, color: Colors.grey),
           ),
         ],

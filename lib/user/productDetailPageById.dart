@@ -54,7 +54,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
           await checkIfInWishlist();
           await fetchReviews();
         } else {
-          // Product exists but is not active
           setState(() {
             loadingProduct = false;
             productData = null;
@@ -242,8 +241,8 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black, // button ka background white
-                  foregroundColor: Colors.white, // text ka color black
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
                 ),
                 onPressed: () {
                   Navigator.pushReplacement(
@@ -259,15 +258,12 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
       );
     }
 
-    // Prepare images list
     List<String> base64Images = [];
     if (productData!['images'] != null && productData!['images'] is List) {
       base64Images = List<String>.from(productData!['images']);
     } else if (productData!['image'] != null) {
       base64Images = [productData!['image']];
     }
-
-    // Brand logic
     String brandName = 'N/A';
     if (productData!.containsKey('brand')) {
       final brandField = productData!['brand'];
@@ -279,7 +275,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
       }
     }
 
-    // Description points
     List<String> descriptionPoints = [];
     if (productData!['description_points'] != null &&
         productData!['description_points'] is List) {
@@ -292,7 +287,7 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          print("Tapped index: $index"); // 👈 check karo kya aa raha hai
+          print("Tapped index: $index");
           if (index == 0) {
             Navigator.push(
               context,
@@ -329,15 +324,14 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => FullScreenGallery(
-                          imageUrls:
-                              base64Images, // 👈 sari images list bhej di
+                          imageUrls: base64Images,
                           initialIndex: base64Images.indexOf(imgUrl),
                         ),
                       ),
                     );
                   },
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(0), // straight edges
+                    borderRadius: BorderRadius.circular(0),
                     child: Image.network(
                       imgUrl,
                       fit: BoxFit.cover,
@@ -353,8 +347,8 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
               }).toList(),
               options: cs.CarouselOptions(
                 height: 250,
-                enlargeCenterPage: false, // center enlarge off
-                viewportFraction: 1.0, // full width image
+                enlargeCenterPage: false,
+                viewportFraction: 1.0,
                 enableInfiniteScroll: base64Images.length > 1,
                 autoPlay: base64Images.length > 1,
               ),
@@ -451,7 +445,7 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                 ? const Center(
                     child: Text(
                       "No reviews yet",
-                      style: TextStyle(color: Colors.white), // ✅ text white
+                      style: TextStyle(color: Colors.white),
                     ),
                   )
                 : Column(
@@ -465,28 +459,23 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                           : '';
 
                       return Card(
-                        color: const Color(
-                          0xFF121633,
-                        ), // thoda alag shade for contrast
+                        color: const Color(0xFF121633),
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 2, // halka shadow
+                        elevation: 2,
                         child: Padding(
                           padding: const EdgeInsets.all(14.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 🔹 User info + date
                               Row(
                                 children: [
                                   FutureBuilder<DocumentSnapshot>(
                                     future: FirebaseFirestore.instance
                                         .collection('users')
-                                        .doc(
-                                          review['userId'],
-                                        ) // yeh review ke andar hona chahiye
+                                        .doc(review['userId'])
                                         .get(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
@@ -576,8 +565,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                                       ],
                                     ),
                                   ),
-
-                                  // 🔹 Rating stars right side
                                   Row(
                                     children: List.generate(
                                       5,
@@ -594,8 +581,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                               ),
 
                               const SizedBox(height: 10),
-
-                              // 🔹 Review Comment
                               Text(
                                 comment,
                                 style: const TextStyle(
@@ -605,8 +590,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                               ),
 
                               const SizedBox(height: 10),
-
-                              // 🔹 Review Images
                               if (review['images'] != null &&
                                   review['images'] is List)
                                 SizedBox(
@@ -696,7 +679,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 🔹 Add to Cart Button
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
@@ -714,8 +696,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                 ),
 
                 const SizedBox(width: 16),
-
-                // 🔹 Wishlist Button
                 IconButton(
                   icon: Icon(
                     isInWishlist ? Icons.favorite : Icons.favorite_border,
@@ -726,8 +706,6 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
                 ),
 
                 const SizedBox(width: 16),
-
-                // 🔹 Share Button
                 IconButton(
                   icon: const Icon(Icons.share, color: Colors.white, size: 32),
                   onPressed: () {

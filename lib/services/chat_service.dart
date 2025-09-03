@@ -13,18 +13,17 @@ class ChatService {
     } else {
       final doc = await convRef.add({
         'userId': uid,
-        'userName': user.displayName ?? user.email ?? 'Unknown User', // ✅ naam save
+        'userName': user.displayName ?? user.email ?? 'Unknown User',
         'createdAt': FieldValue.serverTimestamp(),
         'lastMessage': '',
         'lastUpdated': FieldValue.serverTimestamp(),
-        'unreadForAdmin': 0, // ✅ admin ke liye unread
-        'unreadForUser': 0,  // ✅ user ke liye unread
+        'unreadForAdmin': 0, 
+        'unreadForUser': 0,  
       });
       return doc.id;
     }
   }
 
-  /// ✅ Send Message + Update lastMessage & lastUpdated
   static Future<void> sendMessage(
     String convId,
     String text, {
@@ -34,7 +33,6 @@ class ChatService {
   }) async {
     final user = FirebaseAuth.instance.currentUser;
 
-    // Add message to subcollection
     await FirebaseFirestore.instance
         .collection('conversations')
         .doc(convId)
@@ -50,7 +48,6 @@ class ChatService {
       'isRead': false,
     });
 
-    // Update conversation document
     final convDoc = FirebaseFirestore.instance.collection('conversations').doc(convId);
 
     await convDoc.update({
@@ -60,7 +57,6 @@ class ChatService {
     });
   }
 
-  /// ✅ Mark conversation messages as read (reset unread count)
   static Future<void> markAsRead(String convId, {bool forAdmin = false}) async {
     await FirebaseFirestore.instance
         .collection('conversations')
@@ -70,7 +66,6 @@ class ChatService {
     });
   }
 
-  /// ✅ Listen to messages
   static Stream<QuerySnapshot> messagesStream(String convId) {
     return FirebaseFirestore.instance
         .collection('conversations')

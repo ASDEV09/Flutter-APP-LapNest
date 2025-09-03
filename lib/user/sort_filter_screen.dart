@@ -77,8 +77,6 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // Categories
                 const Text(
                   "Categories",
                   style: TextStyle(
@@ -98,8 +96,6 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Price Range
                 const Text(
                   "Price Range",
                   style: TextStyle(
@@ -166,8 +162,6 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Sort by
                 const Text(
                   "Sort by",
                   style: TextStyle(
@@ -189,8 +183,6 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                // Rating
                 const Text(
                   "Rating",
                   style: TextStyle(
@@ -214,8 +206,6 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                 ),
 
                 const SizedBox(height: 30),
-
-                // Buttons
                 Row(
                   children: [
                     Expanded(
@@ -234,8 +224,7 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                           side: const BorderSide(
                             color: Colors.white,
                             width: 2,
-                          ), // 👈 White border
-
+                          ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -256,7 +245,7 @@ class _SortFilterScreenState extends State<SortFilterScreen> {
                             "maxPrice": maxVal,
                             "sort": selectedSort,
                             "rating": selectedRating,
-                            "filterApplied": true, // yeh naya flag
+                            "filterApplied": true,
                           });
                         },
                         style: ElevatedButton.styleFrom(

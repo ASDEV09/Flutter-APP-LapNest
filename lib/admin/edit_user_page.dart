@@ -68,7 +68,6 @@ class _EditUserPageState extends State<EditUserPage>
       dateOfBirth = (widget.userData['dateOfBirth'] as Timestamp).toDate();
     }
 
-    // Animation setup
     _animController =
         AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _scaleAnim = CurvedAnimation(
@@ -90,11 +89,11 @@ class _EditUserPageState extends State<EditUserPage>
 
  InputDecoration inputDecoration(String hint, IconData icon, {Color iconColor = Colors.white, Color hintColor = Colors.white}) {
   return InputDecoration(
-    prefixIcon: Icon(icon, color: iconColor),   // Icon color set to white
+    prefixIcon: Icon(icon, color: iconColor),   
     hintText: hint,
-    hintStyle: TextStyle(color: hintColor),    // Hint text color set to white
+    hintStyle: TextStyle(color: hintColor),   
     filled: true,
-    fillColor: Colors.white.withOpacity(0.08), // Background color stays same
+    fillColor: Colors.white.withOpacity(0.08),
     contentPadding:
         const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
     border: OutlineInputBorder(
@@ -209,7 +208,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 30),
 
-                // Name
                 TextFormField(
                   controller: nameController,
                   decoration: inputDecoration('Full Name', Icons.person_outline),
@@ -219,7 +217,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // Email
                 TextFormField(
                   controller: emailController,
                   decoration: inputDecoration('Email', Icons.email_outlined),
@@ -235,7 +232,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // Contact
                 TextFormField(
                   controller: contactController,
                   decoration:
@@ -245,7 +241,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // DOB
                 InkWell(
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -284,7 +279,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // Gender
                 DropdownButtonFormField<String>(
                   decoration: inputDecoration('Gender', Icons.wc_outlined, ),
                   dropdownColor: const Color(0xFF1E2440),
@@ -300,7 +294,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // Role
                 DropdownButtonFormField<String>(
                   decoration:
                       inputDecoration('Role', Icons.admin_panel_settings_outlined),
@@ -317,7 +310,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 20),
 
-                // Address
                 TextFormField(
                   controller: addressController,
                   decoration: inputDecoration('Address', Icons.home_outlined),
@@ -326,7 +318,6 @@ class _EditUserPageState extends State<EditUserPage>
                 ),
                 const SizedBox(height: 40),
 
-                // Save Button
                 SizedBox(
                   width: double.infinity,
                   height: 55,

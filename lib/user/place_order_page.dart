@@ -17,7 +17,6 @@ class PlaceOrderPage extends StatelessWidget {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -59,8 +58,6 @@ class PlaceOrderPage extends StatelessWidget {
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               const SizedBox(height: 30),
-
-              // 🔘 Continue Shopping Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,

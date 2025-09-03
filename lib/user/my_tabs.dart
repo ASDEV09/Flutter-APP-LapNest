@@ -6,7 +6,7 @@ import 'package:app/user/my_orders.dart';
 import 'package:app/user/myShippedOrders.dart';
 import 'package:app/user/myDeliveredOrders.dart';
 import 'package:app/user/myReview.dart';
-import 'package:app/user/myCancelledOrders.dart';  // <- Make sure you create this page
+import 'package:app/user/myCancelledOrders.dart';
 
 class OrderTabsWidget extends StatelessWidget {
   final int selectedIndex;
@@ -35,29 +35,54 @@ class OrderTabsWidget extends StatelessWidget {
     }
   }
 
-  Stream<int> _getCountForUser(String collectionName) {
+  Stream<int> _getCountForUser(int index) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return Stream.value(0);
     }
-    return FirebaseFirestore.instance
-        .collection(collectionName)
-        .where('userId', isEqualTo: user.uid)
-        .snapshots()
-        .map((snapshot) => snapshot.size);
+    switch (index) {
+      case 0:
+        return FirebaseFirestore.instance
+            .collection('orders')
+            .where('userId', isEqualTo: user.uid)
+            .where('status', isEqualTo: 'pending')
+            .snapshots()
+            .map((snapshot) => snapshot.size);
+      case 1:
+        return FirebaseFirestore.instance
+            .collection('orders')
+            .where('userId', isEqualTo: user.uid)
+            .where('status', isEqualTo: 'shipped')
+            .snapshots()
+            .map((snapshot) => snapshot.size);
+      case 2:
+        return FirebaseFirestore.instance
+            .collection('orders')
+            .where('userId', isEqualTo: user.uid)
+            .where('status', isEqualTo: 'delivered')
+            .snapshots()
+            .map((snapshot) => snapshot.size);
+      case 3:
+        return FirebaseFirestore.instance
+            .collection('reviews')
+            .where('userId', isEqualTo: user.uid)
+            .snapshots()
+            .map((snapshot) => snapshot.size);
+      case 4:
+        return FirebaseFirestore.instance
+            .collection('orders')
+            .where('userId', isEqualTo: user.uid)
+            .where('status', isEqualTo: 'cancelled')
+            .snapshots()
+            .map((snapshot) => snapshot.size);
+      default:
+        return Stream.value(0);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     List<String> tabs = ['Orders', 'Shipped', 'Delivered', 'Review', 'Canceled'];
-
-    List<String> collections = [
-      'orders',
-      'shippedOrders',
-      'deliveredOrders',
-      'reviews',
-      'orderCancelled',  // Added canceled orders collection here
-    ];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -67,7 +92,7 @@ class OrderTabsWidget extends StatelessWidget {
           final bool isSelected = selectedIndex == index;
 
           return StreamBuilder<int>(
-            stream: _getCountForUser(collections[index]),
+            stream: _getCountForUser(index),
             builder: (context, snapshot) {
               final count = snapshot.data ?? 0;
 

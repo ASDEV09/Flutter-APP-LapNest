@@ -18,8 +18,8 @@ class _ProductsListState extends State<ProductsList> {
   bool loadingRole = true;
   User? currentUser;
 
-  String searchQuery = ""; // 🔍 Search query
-  String filterStatus = "All"; // ⏳ Filter (All, Active, Inactive)
+  String searchQuery = ""; 
+  String filterStatus = "All";
 
   @override
   void initState() {
@@ -141,7 +141,6 @@ class _ProductsListState extends State<ProductsList> {
       drawer: AppDrawer(user: currentUser),
       body: Column(
         children: [
-          // 🔍 Search TextField
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: TextField(
@@ -165,7 +164,6 @@ class _ProductsListState extends State<ProductsList> {
             ),
           ),
 
-          // ⏳ Filter Dropdown
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: Row(
@@ -204,7 +202,6 @@ class _ProductsListState extends State<ProductsList> {
             ),
           ),
 
-          // 🔥 Products List
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -230,13 +227,10 @@ class _ProductsListState extends State<ProductsList> {
                   final desc =
                       (data['description'] ?? '').toString().toLowerCase();
                   final isActive = data['isActive'] ?? true;
-
-                  // ✅ Apply Search Filter
                   final matchesSearch = title.contains(searchQuery) ||
                       brand.contains(searchQuery) ||
                       desc.contains(searchQuery);
 
-                  // ✅ Apply Status Filter
                   final matchesFilter = filterStatus == "All" ||
                       (filterStatus == "Active" && isActive == true) ||
                       (filterStatus == "Inactive" && isActive == false);

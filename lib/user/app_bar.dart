@@ -5,7 +5,7 @@ import 'package:app/user/my_orders.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';  // 🔹 Add this import
+import 'package:google_fonts/google_fonts.dart'; 
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -36,7 +36,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: Divider(color: Colors.grey, thickness: 1, height: 1),
       ),
       actions: [
-        // 🛍 Cart icon with badge
         if (uid != null)
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
@@ -88,7 +87,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
           ),
 
-        // 👤 Profile icon (only if logged in)
         if (uid != null)
           IconButton(
             icon: const Icon(Icons.person_outline),
@@ -100,7 +98,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             },
           ),
 
-        // ⋮ More options OR Login
         uid != null
             ? PopupMenuButton<String>(
                 color: const Color(0xFF0A0F2C),

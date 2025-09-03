@@ -42,7 +42,7 @@ class _WishlistPageState extends State<WishlistPage> {
         backgroundColor: const Color(0xFF0A0F2C),
 
         appBar: AppBar(
-          automaticallyImplyLeading: true, // ✅ back button hata diya
+          automaticallyImplyLeading: true,
           backgroundColor: const Color(0xFF0A0F2C),
           foregroundColor: Colors.white,
           title: const Text(
@@ -52,7 +52,7 @@ class _WishlistPageState extends State<WishlistPage> {
           bottom: const PreferredSize(
             preferredSize: Size.fromHeight(1),
             child: Divider(
-              color: Colors.grey, // ✅ grey border
+              color: Colors.grey,
               height: 1,
               thickness: 1,
             ),
@@ -96,8 +96,6 @@ class _WishlistPageState extends State<WishlistPage> {
         ),
       );
     }
-
-    // ✅ Keep scaffold context for snackbars
     final scaffoldContext = context;
 
     return Scaffold(
@@ -111,7 +109,6 @@ class _WishlistPageState extends State<WishlistPage> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -186,14 +183,6 @@ class _WishlistPageState extends State<WishlistPage> {
               final data = doc.data() as Map<String, dynamic>;
 
               final imageUrl = data['image'] ?? '';
-              // if (base64Image != null && base64Image.isNotEmpty) {
-              //   try {
-              //     imageBytes = base64Decode(base64Image);
-              //   } catch (e) {
-              //     print("Image decode error: $e");
-              //   }
-              // }
-
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Slidable(
@@ -345,21 +334,21 @@ class _WishlistPageState extends State<WishlistPage> {
                           child: imageUrl.isNotEmpty
                               ? Image.network(
                                   imageUrl,
-                                  width: 70, // 🔥 Pehle 50 tha, ab 100 kar diya
-                                  height: 70, // 🔥 Image badi ho gayi
+                                  width: 70,
+                                  height: 70, 
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(
                                         Icons.broken_image,
                                         color: Colors.red,
-                                        size: 80, // 🔥 Error icon bhi bada
+                                        size: 80,
                                       ),
                                 )
                               : const Icon(
                                   Icons.image,
                                   color: Colors.black54,
                                   size: 80,
-                                ), // 🔥 placeholder bada
+                                ),
                         ),
 
                         const SizedBox(width: 12),
@@ -383,9 +372,9 @@ class _WishlistPageState extends State<WishlistPage> {
                                   color: Colors.grey,
                                 ),
                                 maxLines:
-                                    2, // number of lines to show before truncating
+                                    2,
                                 overflow: TextOverflow
-                                    .ellipsis, // adds "..." at the end
+                                    .ellipsis, 
                               ),
                               const SizedBox(height: 8),
                               Text(

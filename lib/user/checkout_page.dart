@@ -1,3 +1,4 @@
+import 'package:app/services/email.dart';
 import 'package:app/user/place_order_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -66,29 +67,70 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final orderData = {
-      'userId': user.uid,
-      'name': _name,
-      'address': _addr,
-      'contact': _contact,
-      'deliveryType': _deliveryType,
-      'paymentMethod': _selectedPayment,
-      'total': widget.total,
-      'timestamp': FieldValue.serverTimestamp(),
-      'items': widget.items.map((item) {
-        final data = item.data() as Map<String, dynamic>;
-        return {...data, 'productId': data['productId']};
-      }).toList(),
-    };
-
-    await FirebaseFirestore.instance.collection('orders').add(orderData);
-
-    // Clear cart after placing order
     final cartItems = await FirebaseFirestore.instance
         .collection('carts')
         .doc(user.uid)
         .collection('items')
         .get();
+
+    final items = cartItems.docs.map((doc) {
+      final data = doc.data();
+      return {...data, 'productId': doc.id};
+    }).toList();
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    final userEmail = userDoc.data()?['email'] ?? "unknown@email.com";
+    final customerName = userDoc.data()?['userName'] ?? "Customer";
+
+    final orderData = {
+      'userId': user.uid,
+      'name': _name,
+      'address': _addr,
+      'contact': _contact,
+      'status': "pending",
+      'deliveryType': _deliveryType,
+      'paymentMethod': _selectedPayment,
+      'total': widget.total,
+      'timestamp': FieldValue.serverTimestamp(),
+      'items': items,
+    };
+
+    final orderRef = await FirebaseFirestore.instance
+        .collection('orders')
+        .add(orderData);
+    final orderId = orderRef.id;
+
+    String itemsTable = items.map((item) {
+      final title = item['title'] ?? "Unknown Item";
+      final quantity = item['quantity'] ?? 1;
+      final price = item['price'] ?? 0;
+
+      return """
+    <tr style="border-bottom:1px solid #ddd;">
+      <td style="padding:8px;">$title</td>
+      <td style="padding:8px; text-align:center;">$quantity</td>
+      <td style="padding:8px; text-align:right;">Rs. $price</td>
+    </tr>
+  """;
+    }).join();
+
+double totalBill = (orderData['total'] as num).toDouble();
+    await EmailService.sendShippedConfirmationEmail(
+      toEmail: userEmail,
+      customerName: customerName,
+      status: "Pending",
+      orderId: orderId,
+      items: items,
+      totalBill: totalBill,
+      itemsTable: itemsTable,
+      firstline: "🎉 Order Placed Successfully!",
+      secline:
+          "Your order has been placed successfully. We'll keep you updated on the status.",
+    );
 
     for (var doc in cartItems.docs) {
       await doc.reference.delete();
@@ -123,35 +165,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
       appBar: PreferredSize(
-  preferredSize: const Size.fromHeight(kToolbarHeight),
-  child: Container(
-    decoration: const BoxDecoration(
-      color: Colors.transparent,
-      border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
-    ),
-    child: AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () => Navigator.of(context).pop(), // go back
-      ),
-      title: Text(
-        'Checkout',
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              'Checkout',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
         ),
       ),
-    ),
-  ),
-),
-
 
       body: Column(
         children: [
-          // Address Section
           Padding(
             padding: const EdgeInsets.all(12),
             child: Container(
@@ -160,7 +200,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 color: Color(0xFF1E293B),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.grey.shade300, // left side dark color
+                  color: Colors.grey.shade300,
                   width: 1,
                 ),
               ),
@@ -223,7 +263,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
           const SizedBox(height: 8),
 
-          // Items List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -238,7 +277,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     color: const Color(0xFF0A0F2C),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.grey.shade300, // bottom grey
+                      color: Colors.grey.shade300,
                       width: 0.5,
                     ),
                   ),
@@ -250,7 +289,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             (m['image'] != null &&
                                 m['image'].toString().isNotEmpty)
                             ? Image.network(
-                                m['image'], // 👈 direct URL
+                                m['image'], 
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
@@ -298,7 +337,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ),
 
-          // Bottom total & place order button
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

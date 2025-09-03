@@ -30,9 +30,9 @@ class _AllProductsState extends State<AllProducts> {
   final user = FirebaseAuth.instance.currentUser;
 
   final TextEditingController _searchController = TextEditingController();
-  bool isFilterApplied = false; // filter ka flag
-  bool isLoading = true; // ✅ splash flag
-  String? selectedBrand; // For filtering products by brand
+  bool isFilterApplied = false;
+  bool isLoading = true;
+  String? selectedBrand;
 
   @override
   void dispose() {
@@ -46,7 +46,6 @@ class _AllProductsState extends State<AllProducts> {
     _loadData();
     _searchController.addListener(_onSearchChanged);
 
-    // ✅ Safe way to use context after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       precacheImage(const AssetImage('assets/images/offer.png'), context);
     });
@@ -54,7 +53,7 @@ class _AllProductsState extends State<AllProducts> {
 
   Future<void> _loadData() async {
     await Future.wait([fetchProducts(), fetchWishlist()]);
-    await Future.delayed(const Duration(seconds: 2)); // splash delay
+    await Future.delayed(const Duration(seconds: 2));
     setState(() {
       isLoading = false;
     });
@@ -113,7 +112,6 @@ class _AllProductsState extends State<AllProducts> {
     }
   }
 
-  // --- NEW: helper to compute average rating per productId ---
   Future<double> _computeAverageRatingByProductId(String productId) async {
     final reviewsSnapshot = await FirebaseFirestore.instance
         .collection('reviews')
@@ -132,22 +130,20 @@ class _AllProductsState extends State<AllProducts> {
   Future<void> fetchProducts() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('products')
-        .where('isActive', isEqualTo: true) // Only active products
+        .where('isActive', isEqualTo: true)
         .get();
 
-    // Map docs to list
     final loaded = snapshot.docs.map((doc) {
       final data = doc.data();
       data['docId'] = doc.id;
       return data;
     }).toList();
 
-    // --- NEW: attach averageRating to each product for filtering ---
     for (final p in loaded) {
       try {
         final productId = (p['docId'] ?? '').toString();
         final avg = await _computeAverageRatingByProductId(productId);
-        p['averageRating'] = avg; // this will be used by applyFilters()
+        p['averageRating'] = avg;
       } catch (_) {
         p['averageRating'] = 0.0;
       }
@@ -155,7 +151,7 @@ class _AllProductsState extends State<AllProducts> {
 
     setState(() {
       products = loaded;
-      filteredProducts = loaded; // initialize filtered products
+      filteredProducts = loaded;
     });
   }
 
@@ -264,8 +260,6 @@ class _AllProductsState extends State<AllProducts> {
     }
   }
 
-  // NOTE: kept for the UI (FutureBuilder) — it shows rating on cards.
-  // Filtering uses p['averageRating'] computed in fetchProducts().
   Future<Map<String, dynamic>> fetchAverageRatingAndCount(
     String productTitle,
   ) async {
@@ -287,18 +281,16 @@ class _AllProductsState extends State<AllProducts> {
     return {"average": avgRating, "count": reviewsSnapshot.docs.length};
   }
 
-  // Helper methods for filter screen
- List<String> getCategoriesFromProducts(List<Map<String, dynamic>> products) {
-  final categoriesSet = <String>{};
-  for (var product in products) {
-    final category = product['category'] ?? product['brand'] ?? ''; 
-    if (category.isNotEmpty) {
-      categoriesSet.add(category.toString());
+  List<String> getCategoriesFromProducts(List<Map<String, dynamic>> products) {
+    final categoriesSet = <String>{};
+    for (var product in products) {
+      final category = product['category'] ?? product['brand'] ?? '';
+      if (category.isNotEmpty) {
+        categoriesSet.add(category.toString());
+      }
     }
+    return categoriesSet.toList();
   }
-  return categoriesSet.toList();
-}
-
 
   double getMinPrice(List<Map<String, dynamic>> products) {
     if (products.isEmpty) return 0;
@@ -316,7 +308,6 @@ class _AllProductsState extends State<AllProducts> {
         .toDouble();
   }
 
-  // Apply filters from the filter screen
   void applyFilters(Map<String, dynamic> filters) {
     final String category = filters['category'] ?? 'All';
     final double minPrice = filters['minPrice'] ?? 0;
@@ -338,7 +329,6 @@ class _AllProductsState extends State<AllProducts> {
 
     switch (sort) {
       case "Popular":
-        // Example: sort by rating desc (or your own popularity field)
         tempList.sort(
           (a, b) => ((b['averageRating'] ?? 0) as num).compareTo(
             (a['averageRating'] ?? 0) as num,
@@ -373,13 +363,12 @@ class _AllProductsState extends State<AllProducts> {
 
     return Stack(
       children: [
-        // Main screen
         Scaffold(
           backgroundColor: Color(0xFF0A0F2C),
           appBar: const CustomAppBar(title: "LapNest"),
           floatingActionButton: FloatingActionButton(
             backgroundColor: Colors.deepPurple,
-            foregroundColor: Colors.white, // ✅ Correct
+            foregroundColor: Colors.white,
 
             child: const Icon(Icons.chat),
             onPressed: () {
@@ -395,11 +384,10 @@ class _AllProductsState extends State<AllProducts> {
           ),
           body: SingleChildScrollView(
             child: Container(
-              color: Color(0xFF0A0F2C), // ✅ Correct
+              color: Color(0xFF0A0F2C),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- SEARCH BAR ---
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16.0,
@@ -464,7 +452,6 @@ class _AllProductsState extends State<AllProducts> {
                         ),
                       ),
                     ),
-                    // Categories Grid
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
@@ -515,8 +502,7 @@ class _AllProductsState extends State<AllProducts> {
                                       c['label'] as String,
                                       style: const TextStyle(
                                         fontSize: 12,
-                                        color: Colors
-                                            .white, // 👈 Ye line add ki hai
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
@@ -527,8 +513,6 @@ class _AllProductsState extends State<AllProducts> {
                     ),
                   ],
 
-                  // --- PRODUCTS GRID ---
-                  // --- PRODUCTS GRID ---
                   isLoading
                       ? const Padding(
                           padding: EdgeInsets.all(50),
@@ -584,9 +568,7 @@ class _AllProductsState extends State<AllProducts> {
                               },
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF1E293B,
-                                  ), // Dark bluish background
+                                  color: const Color(0xFF1E293B),
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
@@ -655,8 +637,6 @@ class _AllProductsState extends State<AllProducts> {
                                         ],
                                       ),
                                     ),
-
-                                    // ✅ Title
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
@@ -671,7 +651,6 @@ class _AllProductsState extends State<AllProducts> {
                                       ),
                                     ),
 
-                                    // ✅ Rating
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8.0,
@@ -724,8 +703,6 @@ class _AllProductsState extends State<AllProducts> {
                                         },
                                       ),
                                     ),
-
-                                    // ✅ Price
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 8.0,
@@ -741,7 +718,6 @@ class _AllProductsState extends State<AllProducts> {
 
                                     const SizedBox(height: 10),
 
-                                    // ✅ Button
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 1,
@@ -778,91 +754,6 @@ class _AllProductsState extends State<AllProducts> {
             ),
           ),
         ),
-
-        // ✅ Loading overlay
-        // ✅ Loading overlay
-        // ✅ Loading overlay
-        // if (isLoading)
-        //   Positioned.fill(
-        //     child: Stack(
-        //       children: [
-        //         // Fullscreen preloaded image
-        //         SizedBox.expand(
-        //           child: Image.asset(
-        //             'assets/images/offer.png',
-        //             fit: BoxFit.cover, // poora cover kare
-        //           ),
-        //         ),
-        //         // Transparent overlay
-        //         Container(color: Colors.black.withOpacity(0.3)),
-        //       ],
-        //     ),
-        //   ),
-        // if (isLoading)
-        //   Positioned.fill(
-        //     child: Container(
-        //       color: Colors.black.withOpacity(0.8), // dark background overlay
-        //       child: Center(
-        //         child: Column(
-        //           mainAxisAlignment: MainAxisAlignment.center,
-        //           children: [
-        //             // Logo
-        //             Container(
-        //               width: 200,
-        //               height: 200,
-        //               decoration: BoxDecoration(
-        //                 shape: BoxShape.circle,
-        //                 border: Border.all(color: Colors.black, width: 2),
-        //               ),
-        //               child: ClipOval(
-        //                 child: Image.asset(
-        //                   'assets/images/lapnest-logo1.png',
-        //                   fit: BoxFit.cover,
-        //                 ),
-        //               ),
-        //             ),
-        //             const SizedBox(height: 20),
-
-        //             // Tagline
-        //             const Text(
-        //               'Your Laptop, Your Nest',
-        //               style: TextStyle(
-        //                 fontSize: 22,
-        //                 fontWeight: FontWeight.w900,
-        //                 color: Colors.white,
-        //                 fontFamily: 'Roboto',
-        //               ),
-        //             ),
-        //             const SizedBox(height: 40),
-
-        //             // Welcome Text
-        //             const Text(
-        //               'Welcome to Lapnest',
-        //               style: TextStyle(
-        //                 fontSize: 26,
-        //                 fontWeight: FontWeight.bold,
-        //                 color: Colors.white,
-        //                 fontFamily: 'Roboto',
-        //               ),
-        //             ),
-        //             const SizedBox(height: 15),
-
-        //             // Subtitle
-        //             const Text(
-        //               'The best E-commerce app of the century\nfor your tech needs!',
-        //               textAlign: TextAlign.center,
-        //               style: TextStyle(
-        //                 fontSize: 18,
-        //                 fontStyle: FontStyle.italic,
-        //                 color: Colors.white,
-        //                 fontFamily: 'Roboto',
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     ),
-        //   ),
       ],
     );
   }
@@ -906,7 +797,7 @@ class SpecialOffersWidget extends StatelessWidget {
             CarouselSlider.builder(
               itemCount: offers.length,
               options: CarouselOptions(
-                height: 200, // 🔹 zyada height taake lambi description fit ho
+                height: 200, 
                 autoPlay: true,
                 autoPlayInterval: const Duration(seconds: 3),
                 enlargeCenterPage: true,
@@ -930,7 +821,6 @@ class SpecialOffersWidget extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // 🔹 Background image
                       imageBytes != null
                           ? Image.memory(imageBytes, fit: BoxFit.cover)
                           : Container(
@@ -938,7 +828,6 @@ class SpecialOffersWidget extends StatelessWidget {
                               child: const Icon(Icons.image_not_supported),
                             ),
 
-                      // 🔹 Dark gradient overlay
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
@@ -952,7 +841,6 @@ class SpecialOffersWidget extends StatelessWidget {
                         ),
                       ),
 
-                      // 🔹 Text content at bottom
                       Positioned(
                         bottom: 12,
                         left: 12,
@@ -984,7 +872,7 @@ class SpecialOffersWidget extends StatelessWidget {
                                 fontSize: 14,
                                 color: Colors.white70,
                               ),
-                              maxLines: 3, // 🔹 lambi description cut nahi hogi
+                              maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ],

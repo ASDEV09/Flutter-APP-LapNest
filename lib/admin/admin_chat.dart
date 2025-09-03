@@ -60,8 +60,8 @@ class _AdminChatState extends State<AdminChat> {
       color: Colors.transparent,
       border: Border(
         bottom: BorderSide(
-          color: Colors.white, // border color
-          width: 1.0,           // border thickness
+          color: Colors.white,  
+          width: 1.0,        
         ),
       ),
     ),
@@ -82,7 +82,6 @@ class _AdminChatState extends State<AdminChat> {
 
       body: Column(
         children: [
-          // Messages
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: msgsStream,
@@ -169,7 +168,6 @@ class _AdminChatState extends State<AdminChat> {
             ),
           ),
 
-          // Input bar
           Container(
             padding: const EdgeInsets.only(left: 8, right: 8, top: 12, bottom: 16),
             color: const Color(0xFF0A0F2C),

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/admin/activeProduct.dart';
-import 'package:app/admin/adminScreen.dart'; // contains AdminPanelScreen
+import 'package:app/admin/adminScreen.dart';
 import 'package:app/admin/allproducts.dart';
 import 'package:app/admin/list_offers_screen.dart';
 import 'package:app/user/AllProducts.dart';
@@ -108,7 +108,6 @@ class _AppDrawerState extends State<AppDrawer> {
                             right: 0,
                             child: GestureDetector(
                               onTap: () {
-                                // Close drawer then open EditProfile with full user data
                                 Navigator.pop(context);
                                 Navigator.push(
                                   context,
@@ -162,14 +161,12 @@ class _AppDrawerState extends State<AppDrawer> {
               },
             ),
 
-            // Dashboard
             _buildListTile(
               icon: Icons.dashboard,
               title: 'Dashboard',
               onTap: () => _navigate(context, const AdminPanelScreen()),
             ),
 
-            // Products Dropdown
             _buildExpansionTile(
               title: 'Products',
               icon: Icons.shopping_bag,
@@ -197,35 +194,30 @@ class _AppDrawerState extends State<AppDrawer> {
               ],
             ),
 
-            // FAQs
             _buildListTile(
               icon: Icons.question_answer,
               title: 'Add FAQs',
               onTap: () => _navigate(context, const AdminFaqPage()),
             ),
 
-            // Chat Support
             _buildListTile(
               icon: Icons.chat,
               title: 'Chat Support',
               onTap: () => _navigate(context, const AdminConversations()),
             ),
 
-            // Orders
             _buildListTile(
               icon: Icons.shopping_cart,
               title: 'Orders',
               onTap: () => _navigate(context, const AdminOrdersPage()),
             ),
 
-            // User List
             _buildListTile(
               icon: Icons.people,
               title: 'User List',
               onTap: () => _navigate(context, const UserList()),
             ),
 
-            // Offers Dropdown
             _buildExpansionTile(
               title: 'Offers',
               icon: Icons.local_offer,
@@ -243,7 +235,6 @@ class _AppDrawerState extends State<AppDrawer> {
               ],
             ),
 
-            // Visit App
             _buildListTile(
               icon: Icons.store,
               title: 'Visit App',
@@ -252,7 +243,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
             const Divider(color: Colors.white24),
 
-            // Logout
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout', style: TextStyle(color: Colors.red)),

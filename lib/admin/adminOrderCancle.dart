@@ -16,7 +16,7 @@ class AdminCancelledOrdersPage extends StatefulWidget {
 class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
   String? userRole;
   bool loadingRole = true;
- String searchQuery = ""; 
+  String searchQuery = "";
   @override
   void initState() {
     super.initState();
@@ -131,7 +131,7 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
           style: GoogleFonts.poppins(
             color: Colors.white,
             fontWeight: FontWeight.bold,
-            fontSize: 20, // Title bigger
+            fontSize: 20,
           ),
         ),
         content: SingleChildScrollView(
@@ -162,12 +162,11 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Product Image
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: (item['image'] != null)
                             ? Image.network(
-                                item['image'], // URL directly render hoga
+                                item['image'],
                                 width: 60,
                                 height: 60,
                                 fit: BoxFit.cover,
@@ -180,7 +179,6 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                       ),
                       const SizedBox(width: 10),
 
-                      // Product Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +296,6 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
       body: Column(
         children: [
           const AdminOrderTabsWidget(selectedIndex: 3),
-              // 🔎 Search bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -342,10 +339,11 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                   );
                 }
 
-                // 🔍 filter by orderId
                 final cancelledOrders = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
-                  final orderId = (data['orderId'] ?? '').toString().toLowerCase();
+                  final orderId = (data['orderId'] ?? '')
+                      .toString()
+                      .toLowerCase();
                   return orderId.contains(searchQuery.toLowerCase());
                 }).toList();
 
@@ -357,7 +355,6 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                     ),
                   );
                 }
-
 
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
@@ -390,8 +387,8 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                                   data['items'].isNotEmpty &&
                                   data['items'][0]['image'] != null)
                               ? Image.asset(
-                                  data['items'][0]['image'], // items array ka pehla image
-                                  width: 70, // image badi hogi
+                                  data['items'][0]['image'], 
+                                  width: 70,
                                   height: 70,
                                   fit: BoxFit.cover,
                                 )
@@ -399,7 +396,7 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                                   Icons.image,
                                   color: Colors.grey,
                                   size: 40,
-                                ), // fallback
+                                ), 
                         ),
                         title: Text(
                           "Order #${orderId.toString().substring(0, 8)}",
@@ -410,7 +407,7 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                           ),
                         ),
                         subtitle: Text(
-                          "User: $recipientName\nTotal: Rs. $total", // 👈 \n se line break
+                          "User: $recipientName\nTotal: Rs. $total",
                           style: GoogleFonts.poppins(
                             color: Colors.white70,
                             fontSize: 12,
@@ -429,18 +426,23 @@ class _AdminCancelledOrdersPageState extends State<AdminCancelledOrdersPage> {
                           },
                           itemBuilder: (_) => const [
                             PopupMenuItem(
-                              
                               value: 'view',
                               child: Text(
                                 "View Details",
-                                style: TextStyle(color: Colors.white, backgroundColor: Color(0xFF1E293B)),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  backgroundColor: Color(0xFF1E293B),
+                                ),
                               ),
                             ),
                             PopupMenuItem(
                               value: 'delete',
                               child: Text(
                                 "Delete",
-                                style: TextStyle(color: Colors.white, backgroundColor: Color(0xFF1E293B)),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  backgroundColor: Color(0xFF1E293B),
+                                ),
                               ),
                             ),
                           ],

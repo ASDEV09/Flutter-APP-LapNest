@@ -57,7 +57,6 @@ class _ListOffersScreenState extends State<ListOffersScreen> {
         ),
       ),
 
-      // Drawer add kiya
       drawer: AppDrawer(
         user: currentUser,
       ),
@@ -148,7 +147,6 @@ class _ListOffersScreenState extends State<ListOffersScreen> {
     );
   }
 
-  // Edit Dialog with enhanced input fields and floating labels
   void _showEditDialog(BuildContext context, String docId, Map<String, dynamic> data) {
     final editTitle = TextEditingController(text: data['title']);
     final editDesc = TextEditingController(text: data['description']);
@@ -245,7 +243,6 @@ class _ListOffersScreenState extends State<ListOffersScreen> {
     );
   }
 
-  // Interactive TextField with focus effects and floating labels
   Widget _buildInteractiveTextField(TextEditingController controller, String label, {int? maxLines}) {
     return TextField(
       controller: controller,
@@ -272,7 +269,6 @@ class _ListOffersScreenState extends State<ListOffersScreen> {
     );
   }
 
-  // Delete Confirmation Dialog
   Widget _buildDeleteDialog(BuildContext context) {
     return AlertDialog(
       backgroundColor: const Color(0xFF1E2440),

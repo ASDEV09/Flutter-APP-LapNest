@@ -82,12 +82,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Case 1: Agar login hi nhi ha
     if (user == null) {
-      return const SignInScreen(); // 👈 direct login screen dikhayega
+      return const SignInScreen();
     }
-
-    // Case 2: Loading state
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFF0A0F2C),
@@ -97,7 +94,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       );
     }
 
-    // Case 3: Agar login to ha lekin role admin nhi ha
     if (!_isAdmin) {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0F2C),
@@ -117,7 +113,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               ),
               const SizedBox(height: 10),
               ElevatedButton(
-                onPressed: _logout, // 👈 logout button se wapis login screen
+                onPressed: _logout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
                   
@@ -130,11 +126,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       );
     }
 
-    // Case 4: Agar admin login ha
     return _buildAdminPanelUI();
   }
 
-  // 👇 aapka normal admin panel ka UI alag method bana lo clean code k liye
   Widget _buildAdminPanelUI() {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
@@ -170,7 +164,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 20),
-            // gridView wali cards
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -260,7 +253,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => const AllProducts(),
-                      ), // 👈 yahan apna Home widget ka naam do
+                      ), 
                     );
                   }),
                 ],
@@ -300,7 +293,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               title,
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
-                fontSize: 13, // ⬅️ Smaller text
+                fontSize: 13, 
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),

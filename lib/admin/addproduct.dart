@@ -31,8 +31,8 @@ class _AddproductState extends State<Addproduct> {
     "Accessories",
   ];
 
-  String? thumbnailFilePath; // Thumbnail ka asset path
-  List<String> imagePaths = []; // Gallery images ke asset paths
+  String? thumbnailFilePath;
+  List<String> imagePaths = [];
 
   String? userRole;
   bool loadingRole = true;
@@ -184,7 +184,6 @@ class _AddproductState extends State<Addproduct> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -198,9 +197,9 @@ class _AddproductState extends State<Addproduct> {
               ),
               iconTheme: const IconThemeData(color: Colors.white),
               leading: IconButton(
-                icon: const Icon(Icons.menu), // Drawer icon
+                icon: const Icon(Icons.menu),
                 onPressed: () {
-                  Scaffold.of(context).openDrawer(); // Opens the drawer
+                  Scaffold.of(context).openDrawer(); 
                 },
               ),
             ),

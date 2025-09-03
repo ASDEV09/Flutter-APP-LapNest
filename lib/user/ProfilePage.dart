@@ -102,7 +102,6 @@ class _ProfilePageState extends State<ProfilePage> {
         );
         break;
       case 3:
-        // already here
         break;
     }
   }
@@ -126,7 +125,6 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
             child: Builder(
-              // Use Builder to get correct context for Scaffold
               builder: (context) => AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
@@ -197,7 +195,7 @@ class _ProfilePageState extends State<ProfilePage> {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            automaticallyImplyLeading: false, // 🔹 disable back button
+            automaticallyImplyLeading: false, 
             title: Text(
               'Profile',
               style: GoogleFonts.poppins(
@@ -250,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 32),
           Container(
-            margin: const EdgeInsets.symmetric(vertical: 6), // spacing
+            margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.white, width: 1),
               borderRadius: BorderRadius.circular(16),
@@ -361,7 +359,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           Container(
-            // thoda gap
             margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.white, width: 1),

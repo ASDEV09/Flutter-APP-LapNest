@@ -68,7 +68,6 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
 
   InputDecoration customInputDecoration(String hintText, IconData icon) {
     return InputDecoration(
-      
       prefixIcon: Icon(icon, color: Colors.black),
       hintText: hintText,
       filled: true,
@@ -103,26 +102,22 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Back arrow
-              IconButton(
-  icon: const FaIcon(
-    FontAwesomeIcons.arrowLeft,
-    color: Colors.white, // ✅ White back icon
-  ),
-  onPressed: () {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SignInScreen(),
-      ),
-    );
-  },
-),
-
+                IconButton(
+                  icon: const FaIcon(
+                    FontAwesomeIcons.arrowLeft,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignInScreen(),
+                      ),
+                    );
+                  },
+                ),
 
                 const SizedBox(height: 10),
-
-                /// Heading
                 const Text(
                   'Reset Password',
                   style: TextStyle(
@@ -141,8 +136,6 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                /// Email Field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -154,41 +147,41 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                             Icons.email_outlined,
                           ).copyWith(
                             filled: true,
-                            fillColor: const Color(0xFF0A0F2C), // background
+                            fillColor: const Color(0xFF0A0F2C),
                             prefixIcon: const Icon(
                               Icons.email_outlined,
                               color: Colors.grey,
-                            ), // grey icon
+                            ),
                             enabledBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.white,
                                 width: 1.5,
-                              ), // white border
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.white,
                                 width: 2,
-                              ), // white border when focused
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.red,
                                 width: 1.5,
-                              ), // red border for error
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.red,
                                 width: 2,
-                              ), // red border when error + focused
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                      style: const TextStyle(color: Colors.white), // text white
+                      style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         setState(() {
                           if (value.isEmpty) {
@@ -219,8 +212,6 @@ class _PasswordResetScreenState extends State<PasswordResetScreen> {
                 ),
 
                 const SizedBox(height: 30),
-
-                /// Send Reset Link Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,

@@ -192,7 +192,6 @@ class _UserListState extends State<UserList> {
     );
   }
 
-  // Delete confirmation dialog
   Widget _buildDeleteDialog(BuildContext context) {
     return AlertDialog(
       backgroundColor: const Color(0xFF1E2440),

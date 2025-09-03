@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'my_tabs.dart';
-import 'custom_bottom_nav_bar.dart'; // <-- apna nav bar ka path yahan lagao
+import 'custom_bottom_nav_bar.dart';
 import 'productDetailPageById.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -77,31 +77,31 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0F2C),
 
-         appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-            border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
-          ),
-          child: Builder(
-            // Use Builder to get correct context for Scaffold
-            builder: (context) => AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'My Order',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.transparent,
+              border: Border(
+                bottom: BorderSide(color: Colors.white, width: 1.0),
+              ),
+            ),
+            child: Builder(
+              builder: (context) => AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                title: Text(
+                  'My Order',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
                 ),
               ),
-          
             ),
           ),
         ),
-      ),
 
         body: Center(
           child: Column(
@@ -150,7 +150,7 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
 
-              appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
           decoration: const BoxDecoration(
@@ -158,7 +158,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -170,7 +169,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                   fontSize: 20,
                 ),
               ),
-          
             ),
           ),
         ),
@@ -183,12 +181,13 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
       body: SafeArea(
         child: Column(
           children: [
-            const OrderTabsWidget(selectedIndex: 0), // tabs upar wale
+            const OrderTabsWidget(selectedIndex: 0),  
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('orders')
                     .where('userId', isEqualTo: currentUserId)
+                    .where('status', isEqualTo: 'pending')
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -266,7 +265,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                       );
                                     },
                                   ),
-                                  // 👇 Yahan Add kiya Download Invoice Button
                                   IconButton(
                                     icon: const Icon(
                                       Icons.download,
@@ -284,7 +282,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                               crossAxisAlignment:
                                                   pw.CrossAxisAlignment.start,
                                               children: [
-                                                // Invoice Header
                                                 pw.Center(
                                                   child: pw.Text(
                                                     "INVOICE",
@@ -297,8 +294,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                                 ),
                                                 pw.Divider(),
                                                 pw.SizedBox(height: 10),
-
-                                                // Order Info
                                                 pw.Text(
                                                   "Order ID: $orderId",
                                                   style: pw.TextStyle(
@@ -343,8 +338,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                                     ),
                                                   ),
                                                 pw.SizedBox(height: 20),
-
-                                                // Items Header
                                                 pw.Text(
                                                   "Order Summary",
                                                   style: pw.TextStyle(
@@ -354,8 +347,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                                                   ),
                                                 ),
                                                 pw.SizedBox(height: 10),
-
-                                                // Items Table
                                                 pw.Table(
                                                   border: pw.TableBorder.all(),
                                                   columnWidths: {
@@ -603,15 +594,6 @@ class _MyOrdersPageState extends State<MyOrdersPage> {
                               const SizedBox(height: 6),
                               ...items.map((item) {
                                 final imageUrl = item['image'] ?? '';
-                                // Uint8List? imageBytes;
-                                // try {
-                                //   if (imageData.isNotEmpty) {
-                                //     imageBytes = base64Decode(imageData);
-                                //   }
-                                // } catch (e) {
-                                //   imageBytes = null;
-                                // }
-
                                 return ListTile(
                                   leading: GestureDetector(
                                     onTap: () {

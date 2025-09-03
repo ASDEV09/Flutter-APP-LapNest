@@ -50,7 +50,6 @@ class AdminConversations extends StatelessWidget {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -64,9 +63,9 @@ class AdminConversations extends StatelessWidget {
               ),
               iconTheme: const IconThemeData(color: Colors.white),
               leading: IconButton(
-                icon: const Icon(Icons.menu), // Drawer icon
+                icon: const Icon(Icons.menu),  
                 onPressed: () {
-                  Scaffold.of(context).openDrawer(); // Opens the drawer
+                  Scaffold.of(context).openDrawer();
                 },
               ),
             ),
@@ -76,7 +75,6 @@ class AdminConversations extends StatelessWidget {
           drawer: AppDrawer(user: currentUser),
           body: Column(
             children: [
-              // 🧾 Chat List
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -124,7 +122,6 @@ class AdminConversations extends StatelessWidget {
 
     final userData = userSnap.data!.data() as Map<String, dynamic>?;
 
-    // Base64 image decode
     if (userData != null && userData['profileImageBase64'] != null) {
       try {
         final imageBytes = base64Decode(userData['profileImageBase64']);
@@ -133,7 +130,6 @@ class AdminConversations extends StatelessWidget {
           backgroundImage: MemoryImage(imageBytes),
         );
       } catch (e) {
-        // agar decode fail ho jaye to initials dikha do
         return CircleAvatar(
           radius: 24,
           backgroundColor: Colors.purple.shade100,
@@ -148,7 +144,6 @@ class AdminConversations extends StatelessWidget {
       }
     }
 
-    // Fallback agar koi image hi na ho
     return CircleAvatar(
       radius: 24,
       backgroundColor: Colors.purple.shade100,
@@ -234,7 +229,6 @@ class AdminConversations extends StatelessWidget {
     );
   }
 
-  // helper to format time
   String _formatTime(Timestamp? ts) {
     if (ts == null) return "";
     final dt = ts.toDate();

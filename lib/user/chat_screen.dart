@@ -87,7 +87,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
-    // 🔒 If user not logged in, show login button
     if (user == null) {
       return Scaffold(
         backgroundColor: const Color(0xFF0A0F2C),
@@ -112,7 +111,6 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
-    // ⏳ If conversation ID not yet loaded
     if (convId == null) {
       return const Scaffold(
         backgroundColor: Color(0xFF0A0F2C),
@@ -129,8 +127,8 @@ class _ChatScreenState extends State<ChatScreen> {
             color: Colors.transparent,
             border: Border(
               bottom: BorderSide(
-                color: Colors.white, // border color
-                width: 1.0, // border thickness
+                color: Colors.white, 
+                width: 1.0, 
               ),
             ),
           ),
@@ -151,7 +149,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
       body: Column(
         children: [
-          // Default Questions
           Container(
             padding: const EdgeInsets.all(8),
             color: const Color(0xFF1B1F36),
@@ -185,7 +182,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          // Messages
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: ChatService.messagesStream(convId!),
@@ -200,7 +196,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     .toList();
                 final allMessages = [...docs, ...tempBotMessages];
 
-                // ⬇️ Auto-scroll when new messages come
                 WidgetsBinding.instance.addPostFrameCallback(
                   (_) => _scrollToBottom(),
                 );
@@ -287,7 +282,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          // Input bar
           Container(
             padding: const EdgeInsets.only(
               left: 8,
@@ -324,12 +318,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   radius: 26,
                   backgroundColor: _isButtonEnabled
                       ? Colors.deepPurple
-                      : Color(0xFF1E293B), // ✅
+                      : Color(0xFF1E293B), 
                   child: IconButton(
                     icon: const Icon(Icons.send, color: Colors.white, size: 22),
                     onPressed: _isButtonEnabled
                         ? _send
-                        : null, // ✅ disable if empty
+                        : null,
                   ),
                 ),
               ],

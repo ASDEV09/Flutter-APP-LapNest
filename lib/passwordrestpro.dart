@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:app/signInScreen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 class PasswordReset extends StatefulWidget {
   const PasswordReset({Key? key}) : super(key: key);
 
@@ -101,18 +102,16 @@ class _PasswordResetState extends State<PasswordReset> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
                 IconButton(
                   icon: const FaIcon(
                     FontAwesomeIcons.arrowLeft,
-                    color: Colors.white, // ✅ White back icon
+                    color: Colors.white,
                   ),
-                   onPressed: () => Navigator.of(context).pop(), 
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
 
                 const SizedBox(height: 10),
 
-                /// Heading
                 const Text(
                   'Reset Password',
                   style: TextStyle(
@@ -131,8 +130,6 @@ class _PasswordResetState extends State<PasswordReset> {
                 ),
 
                 const SizedBox(height: 20),
-
-                /// Email Field
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -144,41 +141,41 @@ class _PasswordResetState extends State<PasswordReset> {
                             Icons.email_outlined,
                           ).copyWith(
                             filled: true,
-                            fillColor: const Color(0xFF0A0F2C), // background
+                            fillColor: const Color(0xFF0A0F2C),
                             prefixIcon: const Icon(
                               Icons.email_outlined,
                               color: Colors.grey,
-                            ), // grey icon
+                            ), 
                             enabledBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.white,
                                 width: 1.5,
-                              ), // white border
+                              ), 
                               borderRadius: BorderRadius.circular(8),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.white,
                                 width: 2,
-                              ), // white border when focused
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.red,
                                 width: 1.5,
-                              ), // red border for error
+                              ),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             focusedErrorBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                 color: Colors.red,
                                 width: 2,
-                              ), // red border when error + focused
+                              ), 
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                      style: const TextStyle(color: Colors.white), // text white
+                      style: const TextStyle(color: Colors.white),
                       onChanged: (value) {
                         setState(() {
                           if (value.isEmpty) {
@@ -209,8 +206,6 @@ class _PasswordResetState extends State<PasswordReset> {
                 ),
 
                 const SizedBox(height: 30),
-
-                /// Send Reset Link Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,

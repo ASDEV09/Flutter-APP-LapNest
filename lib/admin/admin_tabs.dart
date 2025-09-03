@@ -1,4 +1,3 @@
-// lib/adminTabs.dart
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:app/admin/admin_orders_page.dart';
@@ -21,7 +20,7 @@ class AdminOrderTabsWidget extends StatelessWidget {
       case 0:
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const AdminOrdersPage()),
+          MaterialPageRoute(builder: (_) => const AdminOrdersPage()), 
         );
         break;
       case 1:
@@ -45,23 +44,26 @@ class AdminOrderTabsWidget extends StatelessWidget {
     }
   }
 
-  /// Firestore se count fetch karne ka function
-  Stream<int> _getCount(String collectionName) {
-    return FirebaseFirestore.instance
-        .collection(collectionName)
-        .snapshots()
-        .map((snapshot) => snapshot.size);
+  Stream<int> _getCount({String? status, bool isCancel = false}) {
+    if (isCancel) {
+      return FirebaseFirestore.instance
+          .collection('orderCancelled')
+          .snapshots()
+          .map((snapshot) => snapshot.size);
+    }
+
+    Query query = FirebaseFirestore.instance.collection('orders');
+
+    if (status != null) {
+      query = query.where('status', isEqualTo: status);
+    }
+
+    return query.snapshots().map((snapshot) => snapshot.size);
   }
 
   @override
   Widget build(BuildContext context) {
-    List<String> tabs = ['All', 'Shipping', 'Delivered', 'Cancel'];
-    List<String> collections = [
-      'orders',
-      'shippedOrders',
-      'deliveredOrders',
-      'orderCancelled'
-    ];
+    List<String> tabs = ['Pending', 'Shipping', 'Delivered', 'Cancel'];
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -71,8 +73,16 @@ class AdminOrderTabsWidget extends StatelessWidget {
           children: List.generate(tabs.length, (index) {
             final bool isSelected = selectedIndex == index;
 
+            final Stream<int> countStream = (index == 3)
+                ? _getCount(isCancel: true)
+                : (index == 0)
+                    ? _getCount(status: 'pending')
+                    : (index == 1)
+                        ? _getCount(status: 'shipped') 
+                        : _getCount(status: 'delivered');
+
             return StreamBuilder<int>(
-              stream: _getCount(collections[index]),
+              stream: countStream,
               builder: (context, snapshot) {
                 final count = snapshot.data ?? 0;
 
@@ -80,9 +90,10 @@ class AdminOrderTabsWidget extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 6),
                   child: OutlinedButton(
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: isSelected ? Colors.deepPurple : Color(0xFF1E293B),
-                      foregroundColor:
-                          isSelected ? Colors.white : Colors.white,
+                      backgroundColor: isSelected
+                          ? Colors.deepPurple
+                          : const Color(0xFF1E293B),
+                      foregroundColor: Colors.white,
                       side: const BorderSide(color: Colors.black),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),

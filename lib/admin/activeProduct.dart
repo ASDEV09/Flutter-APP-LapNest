@@ -18,7 +18,7 @@ class _ActiveproductState extends State<Activeproduct> {
   bool loadingRole = true;
   User? currentUser;
 
-  String searchQuery = ""; // 🔍 Search text
+  String searchQuery = ""; 
 
   @override
   void initState() {
@@ -141,7 +141,6 @@ class _ActiveproductState extends State<Activeproduct> {
 
       body: Column(
         children: [
-          // 🔍 Search Bar
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
@@ -168,7 +167,7 @@ class _ActiveproductState extends State<Activeproduct> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('products')
-                  .where('isActive', isEqualTo: true) // ✅ Sirf active products
+                  .where('isActive', isEqualTo: true) 
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -181,7 +180,6 @@ class _ActiveproductState extends State<Activeproduct> {
                   );
                 }
 
-                // 🔎 Client-side filtering
                 final products = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   final title = (data['title'] ?? '').toString().toLowerCase();

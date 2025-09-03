@@ -199,7 +199,6 @@ class _AdminFaqPageState extends State<AdminFaqPage> {
       drawer: AppDrawer(user: currentUser),
       body: Column(
         children: [
-          // 🔥 Categories bar (like AdminOrderTabsWidget)
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -246,7 +245,6 @@ class _AdminFaqPageState extends State<AdminFaqPage> {
             ),
           ),
 
-          // 🔥 FAQ List
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: faqsRef

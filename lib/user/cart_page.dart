@@ -1,5 +1,3 @@
-// import 'dart:convert';
-// import 'dart:typed_data';
 import 'package:app/signInScreen.dart';
 import 'package:app/user/AllProducts.dart';
 import 'package:app/user/wishlistPage.dart';
@@ -9,7 +7,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'checkout_page.dart';
-// import 'product_detail_page.dart';
 import 'custom_bottom_nav_bar.dart';
 import 'package:app/user/ProfilePage.dart';
 
@@ -125,7 +122,6 @@ class _CartPageState extends State<CartPage> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -252,7 +248,7 @@ class _CartPageState extends State<CartPage> {
                               ),
                             ],
                             border: Border.all(
-                              color: Colors.grey, // bottom grey
+                              color: Colors.grey,
                               width: 0.5,
                             ),
                           ),
@@ -371,9 +367,9 @@ class _CartPageState extends State<CartPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0A0F2C),
 
-                  borderRadius: BorderRadius.circular(20), // ✅ rounded border
+                  borderRadius: BorderRadius.circular(20), 
                   border: Border.all(
-                    color: Colors.grey, // 🤍 white border all around
+                    color: Colors.grey, 
                     width: 0.5,
                   ),
                 ),
@@ -387,7 +383,7 @@ class _CartPageState extends State<CartPage> {
                           "Total price",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.white, // ✅ white text
+                            color: Colors.white,  
                           ),
                         ),
                         Text(
@@ -395,7 +391,7 @@ class _CartPageState extends State<CartPage> {
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white, // ✅ white text
+                            color: Colors.white,
                           ),
                         ),
                       ],

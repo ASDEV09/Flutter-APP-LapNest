@@ -260,7 +260,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: 0,
         onTap: (index) {
-          print("Tapped index: $index"); // 👈 check karo kya aa raha hai
+          print("Tapped index: $index");
           if (index == 0) {
             Navigator.push(
               context,
@@ -304,9 +304,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     );
                   },
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                      0,
-                    ), // 👈 agar bilkul straight chahiye
+                    borderRadius: BorderRadius.circular(0),
                     child: Image.network(
                       imgUrl,
                       fit: BoxFit.cover,
@@ -319,8 +317,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               }).toList(),
               options: cs.CarouselOptions(
                 height: 250,
-                enlargeCenterPage: false, // 👈 center enlarge band kar do
-                viewportFraction: 1.0, // 👈 full width image (no gap)
+                enlargeCenterPage: false,
+                viewportFraction: 1.0,
                 enableInfiniteScroll: base64Images.length > 1,
                 autoPlay: base64Images.length > 1,
               ),
@@ -459,7 +457,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ? const Center(
                     child: Text(
                       "No reviews yet",
-                      style: TextStyle(color: Colors.white), // ✅ text white
+                      style: TextStyle(color: Colors.white),
                     ),
                   )
                 : Column(
@@ -475,20 +473,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           : '';
 
                       return Card(
-                        color: const Color(
-                          0xFF121633,
-                        ), // thoda alag shade for contrast
+                        color: const Color(0xFF121633),
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        elevation: 2, // halka shadow
+                        elevation: 2,
                         child: Padding(
                           padding: const EdgeInsets.all(14.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // 🔹 User info + date
                               Row(
                                 children: [
                                   FutureBuilder<DocumentSnapshot>(
@@ -496,7 +491,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                         .collection('users')
                                         .doc(
                                           review['userId'],
-                                        ) // yeh review ke andar hona chahiye
+                                        )
                                         .get(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
@@ -586,8 +581,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                       ],
                                     ),
                                   ),
-
-                                  // 🔹 Rating stars right side
                                   Row(
                                     children: List.generate(
                                       5,
@@ -604,8 +597,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
 
                               const SizedBox(height: 10),
-
-                              // 🔹 Review Comment
                               Text(
                                 comment,
                                 style: const TextStyle(
@@ -615,8 +606,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
 
                               const SizedBox(height: 10),
-
-                              // 🔹 Review Images
                               if (review['images'] != null &&
                                   review['images'] is List)
                                 SizedBox(

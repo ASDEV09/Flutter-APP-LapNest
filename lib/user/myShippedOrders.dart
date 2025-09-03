@@ -77,7 +77,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -89,7 +88,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                   fontSize: 20,
                 ),
               ),
-          
             ),
           ),
         ),
@@ -105,8 +103,9 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('shippedOrders')
+                  .collection('orders')
                   .where('userId', isEqualTo: currentUser.uid)
+                  .where('status', isEqualTo: 'shipped')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -208,7 +207,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                                             crossAxisAlignment:
                                                 pw.CrossAxisAlignment.start,
                                             children: [
-                                              // Invoice Header
                                               pw.Center(
                                                 child: pw.Text(
                                                   "INVOICE",
@@ -221,8 +219,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                                               ),
                                               pw.Divider(),
                                               pw.SizedBox(height: 10),
-
-                                              // Order Info
                                               pw.Text(
                                                 "Order ID: $orderId",
                                                 style: pw.TextStyle(
@@ -249,8 +245,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                                                   "Order Date: ${placedAt.toLocal()}",
                                                 ),
                                               pw.SizedBox(height: 20),
-
-                                              // Items Header
                                               pw.Text(
                                                 "Order Summary",
                                                 style: pw.TextStyle(
@@ -260,8 +254,6 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                                                 ),
                                               ),
                                               pw.SizedBox(height: 10),
-
-                                              // Items Table
                                               pw.Table(
                                                 border: pw.TableBorder.all(),
                                                 columnWidths: {
@@ -515,14 +507,14 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
                                   title: Text(
                                     item['title'] ?? 'No Title',
                                     style: const TextStyle(
-                                      color: Colors.white, // 👈 title white
+                                      color: Colors.white, 
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   subtitle: Text(
                                     "Quantity: ${item['quantity'] ?? 0} • Rs. ${item['price'] ?? 0}",
                                     style: const TextStyle(
-                                      color: Colors.white, // 👈 subtitle grey
+                                      color: Colors.white, 
                                     ),
                                   ),
                                 ),
@@ -547,20 +539,20 @@ class _MyShippedOrdersState extends State<MyShippedOrders> {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.grey), // 👈 grey icon
+          Icon(icon, size: 18, color: Colors.grey), 
           const SizedBox(width: 6),
           Text(
             "$label: ",
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: Colors.white, // 👈 white label text
+              color: Colors.white,
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                color: Colors.white, // 👈 white value text
+                color: Colors.white,
               ),
             ),
           ),

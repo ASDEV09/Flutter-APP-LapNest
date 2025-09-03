@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:app/admin/adminScreen.dart'; // AdminPanelScreen
+import 'package:app/admin/adminScreen.dart';
 
 class EditProfile extends StatefulWidget {
   final String userId;
@@ -152,7 +152,6 @@ class _EditProfileState extends State<EditProfile>
         ),
       );
 
-      // Redirect to AdminPanelScreen and remove previous routes
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const AdminPanelScreen()),
@@ -227,7 +226,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 30),
 
-                // Name
                 TextFormField(
                   controller: nameController,
                   decoration: inputDecoration('Full Name', Icons.person_outline),
@@ -237,7 +235,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // Email
                 TextFormField(
                   controller: emailController,
                   decoration: inputDecoration('Email', Icons.email_outlined),
@@ -253,7 +250,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // Contact
                 TextFormField(
                   controller: contactController,
                   decoration:
@@ -263,7 +259,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // DOB
                 InkWell(
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -302,7 +297,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // Gender
                 DropdownButtonFormField<String>(
                   decoration: inputDecoration('Gender', Icons.wc_outlined),
                   hint: const Text("Gender",
@@ -320,7 +314,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // Role
                 DropdownButtonFormField<String>(
                   decoration: inputDecoration('Role', Icons.security_outlined),
                   hint: const Text("Role",
@@ -338,7 +331,6 @@ class _EditProfileState extends State<EditProfile>
                 ),
                 const SizedBox(height: 20),
 
-                // Address
                 TextFormField(
                   controller: addressController,
                   decoration:

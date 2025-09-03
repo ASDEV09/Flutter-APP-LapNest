@@ -70,15 +70,15 @@ class _SignInScreenState extends State<SignInScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// Back Arrow
                 IconButton(
-                  icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Colors.white),
+                  icon: const FaIcon(
+                    FontAwesomeIcons.arrowLeft,
+                    color: Colors.white,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
 
                 const SizedBox(height: 10),
-
-                /// Title
                 const Text(
                   'Login to your\nAccount',
                   style: TextStyle(
@@ -90,15 +90,16 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                /// Email Input
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextField(
                       controller: _emailController,
                       style: const TextStyle(color: Colors.white),
-                      decoration: customInputDecoration("Email", Icons.email_outlined),
+                      decoration: customInputDecoration(
+                        "Email",
+                        Icons.email_outlined,
+                      ),
                       onChanged: (value) {
                         setState(() {
                           if (value.isEmpty) {
@@ -118,15 +119,17 @@ class _SignInScreenState extends State<SignInScreen> {
                         padding: const EdgeInsets.only(top: 5, left: 12),
                         child: Text(
                           _emailError!,
-                          style: const TextStyle(color: Colors.red, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
+
                         ),
                       ),
                   ],
                 ),
 
                 const SizedBox(height: 12),
-
-                /// Password Input
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -134,23 +137,30 @@ class _SignInScreenState extends State<SignInScreen> {
                       controller: _passwordController,
                       obscureText: _obscurePassword,
                       style: const TextStyle(color: Colors.white),
-                      decoration: customInputDecoration("Password", Icons.lock_outline).copyWith(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                            color: Colors.grey,
+                      decoration:
+                          customInputDecoration(
+                            "Password",
+                            Icons.lock_outline,
+                          ).copyWith(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
                       onChanged: (value) {
                         setState(() {
-                          _passwordError =
-                              value.isEmpty ? 'Please enter your password' : null;
+                          _passwordError = value.isEmpty
+                              ? 'Please enter your password'
+                              : null;
                         });
                       },
                     ),
@@ -159,16 +169,18 @@ class _SignInScreenState extends State<SignInScreen> {
                         padding: const EdgeInsets.only(top: 5, left: 12),
                         child: Text(
                           _passwordError!,
-                          style: const TextStyle(color: Colors.red, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                   ],
                 ),
 
                 const SizedBox(height: 8),
+                Row(
 
-                /// Remember Me
-                 Row(
                   children: [
                     Checkbox(
                       value: _isRememberMe,
@@ -176,7 +188,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      activeColor: Colors.deepPurple, // theme color
+                      activeColor: Colors.deepPurple,
                       checkColor: Colors.white,
                     ),
                     const Text(
@@ -192,7 +204,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 const SizedBox(height: 15),
 
-                /// Sign In Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -208,14 +219,17 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                     child: const Text(
                       'Sign in',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 15),
 
-                /// Forgot Password Link
                 Align(
                   alignment: Alignment.center,
                   child: MouseRegion(
@@ -243,8 +257,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                /// Divider
                 Row(
                   children: [
                     Expanded(child: Divider(color: Colors.grey.shade400)),
@@ -260,12 +272,13 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
 
                 const SizedBox(height: 20),
-
-                /// Google Sign In
                 GestureDetector(
                   onTap: () => signInWithGoogle(context),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0A0F2C),
                       border: Border.all(color: Colors.grey.shade400),
@@ -274,7 +287,11 @@ class _SignInScreenState extends State<SignInScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset("assets/images/google.svg", height: 24, width: 24),
+                        SvgPicture.asset(
+                          "assets/images/google.svg",
+                          height: 24,
+                          width: 24,
+                        ),
                         const SizedBox(width: 12),
                         const Text(
                           "Continue with Google",
@@ -286,8 +303,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
 
                 const Spacer(),
-
-                /// Bottom Sign Up Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -301,7 +316,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const SignUpScreen()),
+                            MaterialPageRoute(
+                              builder: (_) => const SignUpScreen(),
+                            ),
                           );
                         },
                         child: const Text(
@@ -324,16 +341,15 @@ class _SignInScreenState extends State<SignInScreen> {
       ),
     );
   }
-
-  /// Sign In Logic
   void _handleSignIn() async {
     setState(() {
       _emailError = _emailController.text.trim().isEmpty
           ? 'Please enter your email'
-          : !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                  .hasMatch(_emailController.text.trim())
-              ? 'Please enter a valid email'
-              : null;
+          : !RegExp(
+              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+            ).hasMatch(_emailController.text.trim())
+          ? 'Please enter a valid email'
+          : null;
 
       _passwordError = _passwordController.text.trim().isEmpty
           ? 'Please enter your password'
@@ -342,16 +358,24 @@ class _SignInScreenState extends State<SignInScreen> {
 
     if (_emailError == null && _passwordError == null) {
       try {
-        final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
+        final credential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
 
         final user = credential.user;
-        if (user == null) throw Exception("User not found.");
 
-        final doc =
-            await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
+        if (user == null) throw Exception("User not found.");
+        if (!user.emailVerified) {
+          await FirebaseAuth.instance.signOut();
+          throw Exception("Please verify your email before logging in.");
+        }
+
+        final doc = await FirebaseFirestore.instance
+            .collection("users")
+            .doc(user.uid)
+            .get();
 
         if (!doc.exists) throw Exception("User data not found.");
 
@@ -377,7 +401,10 @@ class _SignInScreenState extends State<SignInScreen> {
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Login Failed: $e"), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Login Failed: $e"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

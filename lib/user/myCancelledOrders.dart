@@ -74,7 +74,6 @@ class _MyCancelledOrdersState extends State<MyCancelledOrders> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -98,13 +97,12 @@ class _MyCancelledOrdersState extends State<MyCancelledOrders> {
       body: SafeArea(
         child: Column(
           children: [
-            const OrderTabsWidget(selectedIndex: 4), // tabs upar wale
+            const OrderTabsWidget(selectedIndex: 4),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('orderCancelled')
                     .where('userId', isEqualTo: userId)
-                    //.orderBy('cancelledAt', descending: true) // Enable if no errors
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
@@ -137,9 +135,9 @@ class _MyCancelledOrdersState extends State<MyCancelledOrders> {
                       final cancellationReason =
                           data['cancellationReason'] ?? 'No reason provided';
                       final cancelledBy =
-                          data['cancelledBy'] ?? 'Admin'; // 👈 yaha fetch kia
+                          data['cancelledBy'] ?? 'Admin'; 
                       final isSelfCancelled =
-                          cancelledBy == userId; // 👈 check current user UID
+                          cancelledBy == userId; 
 
                       final total = data['total'] ?? 0;
                       final items = data['items'] as List<dynamic>? ?? [];
@@ -316,14 +314,14 @@ class _MyCancelledOrdersState extends State<MyCancelledOrders> {
                                     title: Text(
                                       item['title'] ?? 'No Title',
                                       style: const TextStyle(
-                                        color: Colors.white, // 👈 title white
+                                        color: Colors.white,
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     subtitle: Text(
                                       "Quantity: ${item['quantity'] ?? 0} • Rs. ${item['price'] ?? 0}",
                                       style: const TextStyle(
-                                        color: Colors.white, // 👈 subtitle grey
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
@@ -349,20 +347,20 @@ class _MyCancelledOrdersState extends State<MyCancelledOrders> {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: Colors.grey), // 👈 grey icon
+          Icon(icon, size: 18, color: Colors.grey),
           const SizedBox(width: 6),
           Text(
             "$label: ",
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: Colors.white, // 👈 white label text
+              color: Colors.white, 
             ),
           ),
           Expanded(
             child: Text(
               value,
               style: const TextStyle(
-                color: Colors.white, // 👈 white value text
+                color: Colors.white, 
               ),
             ),
           ),

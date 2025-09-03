@@ -3,7 +3,7 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'dart:typed_data';
 class FullScreenGallery extends StatefulWidget {
-  final List<String> imageUrls;   // 👈 Ab URLs expect karenge
+  final List<String> imageUrls;  
   final int initialIndex;
 
   const FullScreenGallery({
@@ -39,7 +39,7 @@ class _FullScreenGalleryState extends State<FullScreenGallery> {
               itemCount: widget.imageUrls.length,
               builder: (context, index) {
                 return PhotoViewGalleryPageOptions(
-                  imageProvider: NetworkImage(widget.imageUrls[index]), // 👈 URL
+                  imageProvider: NetworkImage(widget.imageUrls[index]),
                   minScale: PhotoViewComputedScale.contained * 1.0,
                   maxScale: PhotoViewComputedScale.covered * 3.0,
                   heroAttributes: PhotoViewHeroAttributes(tag: index),
@@ -51,8 +51,6 @@ class _FullScreenGalleryState extends State<FullScreenGallery> {
               backgroundDecoration: const BoxDecoration(color: Colors.black),
               scrollPhysics: const BouncingScrollPhysics(),
             ),
-
-            // 🔹 Close button
             Positioned(
               top: 10,
               right: 10,
@@ -62,7 +60,6 @@ class _FullScreenGalleryState extends State<FullScreenGallery> {
               ),
             ),
 
-            // 🔹 Thumbnails
             Positioned(
               bottom: 10,
               left: 0,
@@ -153,8 +150,6 @@ class _FullScreenGalleryBase64State extends State<FullScreenGalleryBase64> {
               },
               backgroundDecoration: const BoxDecoration(color: Colors.black),
             ),
-
-            // Close button
             Positioned(
               top: 10,
               right: 10,

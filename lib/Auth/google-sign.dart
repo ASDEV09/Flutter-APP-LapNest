@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Screens
 import '../user/AllProducts.dart';
 
 Future<void> signInWithGoogle(BuildContext context) async {
   try {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-    if (googleUser == null) return; // User cancelled
+    if (googleUser == null) return; 
 
     final GoogleSignInAuthentication googleAuth =
         await googleUser.authentication;
@@ -33,10 +32,9 @@ Future<void> signInWithGoogle(BuildContext context) async {
 
       final docSnapshot = await userDocRef.get();
 
-      String role = "user"; // default role
+      String role = "user";
 
       if (!docSnapshot.exists) {
-        // Agar user pehli baar aa raha hai to default role user hoga
         await userDocRef.set({
           'userName': user.displayName ?? '',
           'email': user.email ?? '',
@@ -44,17 +42,14 @@ Future<void> signInWithGoogle(BuildContext context) async {
           'lastSignIn': FieldValue.serverTimestamp(),
         });
       } else {
-        // Agar already exist karta hai to role le lo
         final data = docSnapshot.data() as Map<String, dynamic>;
         role = data['role'] ?? 'user';
 
-        // lastSignIn update
         await userDocRef.update({
           'lastSignIn': FieldValue.serverTimestamp(),
         });
       }
 
-      // Role ke hisaab se navigation
       if (role == 'admin') {
         Navigator.pushReplacement(
           context,

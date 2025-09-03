@@ -9,8 +9,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'my_tabs.dart'; // Your custom tab widget
-import 'custom_bottom_nav_bar.dart'; // Make sure you have this imported
+import 'my_tabs.dart'; 
+import 'custom_bottom_nav_bar.dart'; 
 import 'package:pdf/pdf.dart' as p;
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -81,7 +81,6 @@ class _DeliveredOrdersPendingReviewsState
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -93,7 +92,6 @@ class _DeliveredOrdersPendingReviewsState
                   fontSize: 20,
                 ),
               ),
-          
             ),
           ),
         ),
@@ -109,8 +107,9 @@ class _DeliveredOrdersPendingReviewsState
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('deliveredOrders')
+                  .collection('orders')
                   .where('userId', isEqualTo: userId)
+                  .where('status', isEqualTo: 'delivered')
                   .snapshots(),
               builder: (context, orderSnapshot) {
                 if (orderSnapshot.hasError) {
@@ -187,7 +186,8 @@ class _DeliveredOrdersPendingReviewsState
                                       child: Text(
                                         "Order ID: $orderId",
                                         style: const TextStyle(
-                                          fontWeight: FontWeight.bold,color: Colors.white
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
                                         ),
                                       ),
                                     ),
@@ -210,7 +210,6 @@ class _DeliveredOrdersPendingReviewsState
                                         );
                                       },
                                     ),
-                                    // 👇 Yahan Add kiya Download Invoice Button
                                     IconButton(
                                       icon: const Icon(
                                         Icons.download,
@@ -228,7 +227,6 @@ class _DeliveredOrdersPendingReviewsState
                                                 crossAxisAlignment:
                                                     pw.CrossAxisAlignment.start,
                                                 children: [
-                                                  // 🔹 Invoice Header
                                                   pw.Center(
                                                     child: pw.Text(
                                                       "INVOICE",
@@ -241,8 +239,6 @@ class _DeliveredOrdersPendingReviewsState
                                                   ),
                                                   pw.SizedBox(height: 10),
                                                   pw.Divider(),
-
-                                                  // 🔹 Order Details
                                                   pw.SizedBox(height: 10),
                                                   pw.Text(
                                                     "Order ID: $orderId",
@@ -275,8 +271,6 @@ class _DeliveredOrdersPendingReviewsState
                                                     ),
                                                   ),
                                                   pw.SizedBox(height: 20),
-
-                                                  // 🔹 Items Table Header
                                                   pw.Text(
                                                     "Order Summary",
                                                     style: pw.TextStyle(
@@ -286,8 +280,6 @@ class _DeliveredOrdersPendingReviewsState
                                                     ),
                                                   ),
                                                   pw.SizedBox(height: 10),
-
-                                                  // 🔹 Items Table
                                                   pw.Table(
                                                     border: pw.TableBorder.all(
                                                       width: 0.5,
@@ -305,7 +297,6 @@ class _DeliveredOrdersPendingReviewsState
                                                       ),
                                                     },
                                                     children: [
-                                                      // Table Header Row
                                                       pw.TableRow(
                                                         decoration:
                                                             const pw.BoxDecoration(
@@ -361,8 +352,6 @@ class _DeliveredOrdersPendingReviewsState
                                                           ),
                                                         ],
                                                       ),
-
-                                                      // Items Rows
                                                       ...items.map((item) {
                                                         final title =
                                                             item['title'] ??
@@ -409,8 +398,6 @@ class _DeliveredOrdersPendingReviewsState
                                                   ),
 
                                                   pw.SizedBox(height: 20),
-
-                                                  // 🔹 Total Amount
                                                   pw.Align(
                                                     alignment: pw
                                                         .Alignment
@@ -427,8 +414,6 @@ class _DeliveredOrdersPendingReviewsState
 
                                                   pw.Divider(),
                                                   pw.SizedBox(height: 10),
-
-                                                  // 🔹 Footer Note
                                                   pw.Center(
                                                     child: pw.Text(
                                                       "Thank you for shopping with us!",
@@ -566,8 +551,6 @@ class _DeliveredOrdersPendingReviewsState
                                   final key = "${orderId}_$productId";
                                   final isReviewed = reviewedOrderProductPairs
                                       .contains(key);
-
-                                  // Check if reviewAvailableAt is more than 2 minutes ago
                                   final Timestamp? reviewAvailableAtTimestamp =
                                       item['reviewAvailableAt'];
                                   bool isReviewExpired = false;
@@ -628,14 +611,14 @@ class _DeliveredOrdersPendingReviewsState
                                     title: Text(
                                       title,
                                       style: const TextStyle(
-                                        color: Colors.white, // title white
+                                        color: Colors.white, 
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     subtitle: Text(
                                       "Quantity: $quantity • Rs. $price",
                                       style: const TextStyle(
-                                        color: Colors.white, // subtitle grey
+                                        color: Colors.white, 
                                       ),
                                     ),
 
@@ -661,7 +644,8 @@ class _DeliveredOrdersPendingReviewsState
                                               );
                                             },
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.deepPurple,
+                                              backgroundColor:
+                                                  Colors.deepPurple,
                                               foregroundColor: Colors.white,
                                             ),
                                             child: const Text("Write Review"),

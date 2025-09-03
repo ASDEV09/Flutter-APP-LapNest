@@ -63,7 +63,6 @@ class _EditProductPageState extends State<EditProductPage> {
     if (doc.exists && doc.data()?['role'] == 'admin') {
       _isAdmin = true;
 
-      // Initialize controllers with product data
       titleController =
           TextEditingController(text: widget.productData['title']);
       brandController =
@@ -186,9 +185,9 @@ class _EditProductPageState extends State<EditProductPage> {
       ),
       iconTheme: const IconThemeData(color: Colors.white),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back), // 🔙 Back button
+        icon: const Icon(Icons.arrow_back), 
         onPressed: () {
-          Navigator.pop(context); // Go back to previous screen
+          Navigator.pop(context);
         },
       ),
     ),
@@ -208,7 +207,6 @@ class _EditProductPageState extends State<EditProductPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Thumbnail
                 const Text(
                   "Thumbnail Image",
                   style: TextStyle(
@@ -232,7 +230,6 @@ class _EditProductPageState extends State<EditProductPage> {
 
                 const SizedBox(height: 24),
 
-                // Gallery
                 buildImagePicker("Gallery Images", getImages),
                 if (imagePaths.isNotEmpty)
                   Column(
@@ -243,7 +240,6 @@ class _EditProductPageState extends State<EditProductPage> {
 
                 const SizedBox(height: 16),
 
-                // Categories
                 buildCategorySelector(),
 
                 const SizedBox(height: 24),
@@ -253,7 +249,6 @@ class _EditProductPageState extends State<EditProductPage> {
                 buildInputField("Price", priceController, Icons.attach_money,
                     keyboardType: TextInputType.number),
 
-                // Feature points
                 Row(
                   children: [
                     Expanded(
@@ -292,7 +287,6 @@ class _EditProductPageState extends State<EditProductPage> {
                   ),
                 const SizedBox(height: 24),
 
-                // Update Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:app/signInScreen.dart';
 import 'package:app/user/AllProducts.dart';
 import 'package:app/user/cart_page.dart';
@@ -35,7 +34,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Uint8List? imageBytes;
 
   DateTime? dateOfBirth;
-  String? gender; // "Male", "Female", "Other"
+  String? gender;
 
   final List<String> genderOptions = ['Male', 'Female', 'Other'];
 
@@ -178,32 +177,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
         );
         break;
       case 3:
-        // already here
         break;
     }
   }
 
   InputDecoration inputDecoration(String hint, IconData icon) {
     return InputDecoration(
-      prefixIcon: Icon(icon, color: Colors.grey), // icon grey
+      prefixIcon: Icon(icon, color: Colors.grey),
       hintText: hint,
       filled: true,
-      fillColor: const Color(0xFF0A0F2C), // background for textfield
-      hintStyle: const TextStyle(color: Colors.grey), // hint white
+      fillColor: const Color(0xFF0A0F2C),
+      hintStyle: const TextStyle(color: Colors.grey),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white), // border white
+        borderSide: const BorderSide(color: Colors.white),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.white), // border white
+        borderSide: const BorderSide(color: Colors.white),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: Colors.white,
-          width: 2,
-        ), // border white
+        borderSide: const BorderSide(color: Colors.white, width: 2),
       ),
     );
   }
@@ -232,39 +227,35 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     return Scaffold(
       backgroundColor: Color(0xFF0A0F2C),
-       appBar: PreferredSize(
-  preferredSize: const Size.fromHeight(kToolbarHeight),
-  child: Container(
-    decoration: const BoxDecoration(
-      color: Colors.transparent,
-      border: Border(
-        bottom: BorderSide(color: Colors.white, width: 1.0),
-      ),
-    ),
-    child: Builder(
-      builder: (context) => AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Edit Profile',
-          style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
+          ),
+          child: Builder(
+            builder: (context) => AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Text(
+                'Edit Profile',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
           ),
         ),
-        // 🔙 Back Icon
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context); // goes back
-          },
-        ),
       ),
-    ),
-  ),
-),
-
 
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
@@ -300,10 +291,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               const SizedBox(height: 20),
 
-              // Name
               TextFormField(
                 controller: nameController,
-                style: const TextStyle(color: Colors.white), // user input white
+                style: const TextStyle(color: Colors.white),
                 decoration: inputDecoration('Name', Icons.person_outline),
                 validator: (val) =>
                     val == null || val.trim().isEmpty ? 'Name required' : null,
@@ -311,10 +301,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               const SizedBox(height: 20),
 
-              // Contact Number
               TextFormField(
                 controller: contactController,
-                style: const TextStyle(color: Colors.white), // user input white
+                style: const TextStyle(color: Colors.white),
                 decoration: inputDecoration(
                   'Contact Number',
                   Icons.phone_outlined,
@@ -333,7 +322,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               const SizedBox(height: 20),
 
-              // Date of Birth
               FormField<DateTime>(
                 validator: (val) {
                   if (dateOfBirth == null) {
@@ -381,48 +369,40 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
               const SizedBox(height: 20),
 
-              // Gender
-             DropdownButtonFormField<String>(
-  dropdownColor: const Color(0xFF0A0F2C),
-  style: const TextStyle(
-    color: Colors.white,
-  ), // selected value text white
-  decoration: inputDecoration('', Icons.wc_outlined), // empty hint here
-  hint: const Text(
-    'Gender',
-    style: TextStyle(
-      color: Colors.grey,
-    ),
-  ),
-  value: gender,
-  items: genderOptions
-      .map(
-        (g) => DropdownMenuItem(
-          value: g,
-          child: Text(
-            g,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ),
-      )
-      .toList(),
-  onChanged: (val) {
-    setState(() {
-      gender = val;
-    });
-  },
-  validator: (val) =>
-      val == null || val.isEmpty ? 'Gender required' : null,
-),
+              DropdownButtonFormField<String>(
+                dropdownColor: const Color(0xFF0A0F2C),
+                style: const TextStyle(color: Colors.white),
+                decoration: inputDecoration('', Icons.wc_outlined),
+                hint: const Text(
+                  'Gender',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                value: gender,
+                items: genderOptions
+                    .map(
+                      (g) => DropdownMenuItem(
+                        value: g,
+                        child: Text(
+                          g,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (val) {
+                  setState(() {
+                    gender = val;
+                  });
+                },
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Gender required' : null,
+              ),
 
               const SizedBox(height: 20),
 
-              // Address
               TextFormField(
                 controller: addressController,
-                style: const TextStyle(
-                  color: Colors.white,
-                ), // FIX ✅ input white
+                style: const TextStyle(color: Colors.white),
                 decoration: inputDecoration('Address', Icons.home_outlined),
                 maxLines: 3,
                 validator: (val) => val == null || val.trim().isEmpty
@@ -440,7 +420,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   icon: const Icon(Icons.save),
                   label: const Text('Save Profile'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurple, // deep purple button
+                    backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),

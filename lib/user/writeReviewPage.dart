@@ -12,7 +12,7 @@ class WriteReviewPage extends StatefulWidget {
   final String userName;
   final String productId;
   final String productTitle;
-  final String productImageBase64;  // NEW
+  final String productImageBase64; 
 
   const WriteReviewPage({
     Key? key,
@@ -20,7 +20,7 @@ class WriteReviewPage extends StatefulWidget {
     required this.userName,
     required this.productId,
     required this.productTitle,
-    required this.productImageBase64,  // NEW
+    required this.productImageBase64,  
   }) : super(key: key);
 
   @override
@@ -98,7 +98,6 @@ Future<void> _submitReview() async {
   }
 
   try {
-    // 🔹 Fetch name from deliveredOrders/{orderId}
     DocumentSnapshot deliveredOrderDoc = await FirebaseFirestore.instance
         .collection('deliveredOrders')
         .doc(widget.orderId)
@@ -112,11 +111,10 @@ Future<void> _submitReview() async {
       }
     }
 
-    // 🔹 Save review with fetched name
     await FirebaseFirestore.instance.collection('reviews').add({
       'orderId': widget.orderId,
       'userId': currentUser.uid,
-      'userName': userNameFromOrder, // 👈 name from deliveredOrders
+      'userName': userNameFromOrder, 
       'productId': widget.productId,
       'productTitle': widget.productTitle,
       'productImage': widget.productImageBase64,
@@ -167,7 +165,6 @@ Widget build(BuildContext context) {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,

@@ -1,4 +1,5 @@
 import 'package:app/admin/admin_tabs.dart';
+import 'package:app/services/email.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -75,20 +76,74 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
     return 'Unknown';
   }
 
-  Future<void> markAsDelivered(DocumentSnapshot shippedOrder) async {
-    final data = shippedOrder.data() as Map<String, dynamic>;
+  Future<void> markAsDelivered(
+    String docId,
+    Map<String, dynamic> orderData,
+    DocumentSnapshot orderDoc,
+  ) async {
     try {
+      await orderDoc.reference.update({
+        'status': 'delivered',
+        'deliveredAt': Timestamp.now(),
+      });
+      final List<dynamic> itemsWithProductId = orderData['items'] ?? [];
+
+    final updatedOrderData = {
+  ...orderData,
+  'status': 'delivered',         
+  'deliveredAt': Timestamp.now(), 
+  'orderId': docId,
+  'items': itemsWithProductId,
+};
       await FirebaseFirestore.instance
-          .collection('deliveredOrders')
-          .doc(shippedOrder.id)
-          .set({
-            ...data,
-            'deliveredAt': Timestamp.now(),
-            'orderId': shippedOrder.id,
-          });
-      await shippedOrder.reference.delete();
+          .collection('orders')
+          .doc(docId)
+          .update(updatedOrderData);
+
+      String userId = orderData['userId'];
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      final userEmail = userDoc.data()?['email'] ?? "unknown@email.com";
+      final customerName = userDoc.data()?['userName'] ?? "Customer";
+
+      String itemsTable = itemsWithProductId.map((item) {
+        final title = item['title'] ?? "Unknown Item";
+        final quantity = item['quantity'] ?? 1; 
+        final price = item['price'] ?? 0;
+
+        return """
+        <tr style="border-bottom:1px solid #ddd;">
+          <td style="padding:8px;">$title</td>
+          <td style="padding:8px; text-align:center;">$quantity</td>
+          <td style="padding:8px; text-align:right;">Rs. $price</td>
+        </tr>
+      """;
+      }).join();
+
+      double totalBill = (orderData['total'] ?? 0).toDouble();
+
+      await EmailService.sendShippedConfirmationEmail(
+        toEmail: userEmail,
+        customerName: customerName,
+        status: "Delivered",
+        orderId: docId,
+        items: List<Map<String, dynamic>>.from(itemsWithProductId),
+        totalBill: totalBill,
+        itemsTable: itemsTable,
+        firstline:"😊 In Your Hands!",
+        secline:"Your order is now in your hands.",
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Order marked as Delivered & email sent")),
+      );
     } catch (e) {
-      // ignore
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error shipping order: $e")));
     }
   }
 
@@ -159,7 +214,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                 ),
                 const SizedBox(height: 8),
 
-                // Items list
                 ...items.map((item) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -256,7 +310,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
     const textColor = Color(0xFFD3D3D3);
     const accentColor = Colors.deepPurple;
     const iconColor = Colors.grey;
-    // const menuBg = Color(0xFF1B1F36);
 
     if (loadingRole) {
       return const Scaffold(
@@ -305,7 +358,7 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
       body: Column(
         children: [
           const AdminOrderTabsWidget(selectedIndex: 1),
-        Padding(
+          Padding(
             padding: const EdgeInsets.all(12.0),
             child: TextField(
               controller: _searchController,
@@ -339,19 +392,20 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
               },
             ),
           ),
-
-          // 🔥 Orders List
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('shippedOrders')
-                  .orderBy('shippedAt', descending: true)
+                  .collection('orders')
+                  .where('status', isEqualTo: 'shipped')
                   .snapshots(),
+
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Center(
-                    child: Text("Error loading shipped orders.",
-                        style: TextStyle(color: textColor, fontSize: 16)),
+                    child: Text(
+                      "Error loading shipped orders.",
+                      style: TextStyle(color: textColor, fontSize: 16),
+                    ),
                   );
                 }
                 if (!snapshot.hasData) {
@@ -360,7 +414,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                   );
                 }
 
-                // 🔍 Filter by Order ID
                 final orders = snapshot.data!.docs.where((doc) {
                   final orderId = doc.id.toLowerCase();
                   return searchQuery.isEmpty ||
@@ -369,11 +422,12 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
 
                 if (orders.isEmpty) {
                   return const Center(
-                    child: Text("No shipped orders found.",
-                        style: TextStyle(color: textColor, fontSize: 16)),
+                    child: Text(
+                      "No shipped orders found.",
+                      style: TextStyle(color: textColor, fontSize: 16),
+                    ),
                   );
                 }
-
 
                 return ListView.builder(
                   padding: const EdgeInsets.all(12),
@@ -407,7 +461,7 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 3,
-                          color: const Color(0xFF1B1F36), // tumhara card color
+                          color: const Color(0xFF1B1F36),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Column(
@@ -416,14 +470,13 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // 👇 Image section
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(6),
                                       child:
                                           (data['items'] != null &&
                                               data['items'].isNotEmpty)
                                           ? Image.network(
-                                              data['items'][0]['image'], // Firestore ka pehla image
+                                              data['items'][0]['image'],
                                               width: 70,
                                               height: 70,
                                               fit: BoxFit.cover,
@@ -446,7 +499,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                     ),
                                     const SizedBox(width: 10),
 
-                                    // 👇 Texts section
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -503,7 +555,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                         } else if (value == 'pdf') {
                                           final pdf = pw.Document();
 
-                                          // ---------------- PAGE 1 : Invoice ----------------
                                           pdf.addPage(
                                             pw.Page(
                                               margin: const pw.EdgeInsets.all(
@@ -649,7 +700,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                             ),
                                           );
 
-                                          // ---------------- PAGE 2 : Shipping Label ----------------
                                           pdf.addPage(
                                             pw.Page(
                                               pageFormat: PdfPageFormat.a6,
@@ -713,7 +763,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                             ),
                                           );
 
-                                          // Show PDF (download/print)
                                           await Printing.layoutPdf(
                                             onLayout: (format) async =>
                                                 pdf.save(),
@@ -744,15 +793,6 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                   ],
                                 ),
 
-                                // const SizedBox(height: 8),
-                                // Text(
-                                //   "Total: Rs. $total",
-                                //   style: TextStyle(color: textColor),
-                                // ),
-                                // Text(
-                                //   "Date: ${timestamp?.toLocal().toString().split(' ')[0] ?? ''}",
-                                //   style: TextStyle(color: textColor.withOpacity(0.7)),
-                                // ),
                                 const SizedBox(height: 12),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -762,7 +802,7 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                       height: 40,
                                       child: FittedBox(
                                         fit: BoxFit
-                                            .scaleDown, // ensures text stays in one line
+                                            .scaleDown,
                                         child: ElevatedButton.icon(
                                           onPressed: () async {
                                             final confirm = await showDialog<bool>(
@@ -836,7 +876,12 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                             );
 
                                             if (confirm == true) {
-                                              await markAsDelivered(doc);
+                                              await markAsDelivered(
+                                                doc.id,
+                                                doc.data()
+                                                    as Map<String, dynamic>,
+                                                doc,
+                                              );
                                               if (mounted) {
                                                 ScaffoldMessenger.of(
                                                   context,
@@ -955,9 +1000,9 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                                 TextButton(
                                                   style: TextButton.styleFrom(
                                                     backgroundColor: Colors
-                                                        .deepPurple, // ✅ Button background
+                                                        .deepPurple,  
                                                     foregroundColor: Colors
-                                                        .white, // ✅ Text color
+                                                        .white, 
                                                     padding:
                                                         const EdgeInsets.symmetric(
                                                           horizontal: 16,
@@ -1032,7 +1077,7 @@ class _AdminShippedOrdersState extends State<AdminShippedOrders> {
                                         label: const Text("Cancel Order"),
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: Colors
-                                              .white, // ✅ Text & Icon ka color yahin se set hoga
+                                              .white, 
 
                                           side: const BorderSide(
                                             color: Colors.white,

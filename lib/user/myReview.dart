@@ -6,7 +6,7 @@ import 'package:app/user/ProfilePage.dart';
 import 'package:app/user/cart_page.dart';
 import 'package:app/user/my_tabs.dart';
 import 'package:app/user/wishlistPage.dart';
-import 'package:app/user/ProductDetailPageById.dart'; // <-- Add this import and adjust path if needed
+import 'package:app/user/ProductDetailPageById.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -58,7 +58,7 @@ class _MyReviewState extends State<MyReview> {
           docId: doc.id,
           productTitle: data['productTitle'] ?? '',
           orderId: data['orderId'] ?? '',
-          productId: data['productId'] ?? '', // NEW field
+          productId: data['productId'] ?? '',
           rating: (data['rating'] is int)
               ? data['rating']
               : (data['rating'] as num).toInt(),
@@ -147,20 +147,14 @@ class _MyReviewState extends State<MyReview> {
                     TextField(
                       controller: controller,
                       maxLines: 4,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ), // input text white
+                      style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         labelText: 'Review',
-                        labelStyle: const TextStyle(
-                          color: Colors.white,
-                        ), // label text white
+                        labelStyle: const TextStyle(color: Colors.white),
                         enabledBorder: const OutlineInputBorder(
-                          // normal border white
                           borderSide: BorderSide(color: Colors.white),
                         ),
                         focusedBorder: const OutlineInputBorder(
-                          // focused border white
                           borderSide: BorderSide(color: Colors.white, width: 2),
                         ),
                       ),
@@ -321,7 +315,7 @@ class _MyReviewState extends State<MyReview> {
   bool _canEdit(DateTime timestamp) {
     final now = DateTime.now();
     final difference = now.difference(timestamp);
-    return difference.inDays < 7; // 7 din ke andar edit allowed
+    return difference.inDays < 7;
   }
 
   int _selectedIndex = 0;
@@ -363,7 +357,7 @@ class _MyReviewState extends State<MyReview> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
-       appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
           decoration: const BoxDecoration(
@@ -371,7 +365,6 @@ class _MyReviewState extends State<MyReview> {
             border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
           ),
           child: Builder(
-            // Use Builder to get correct context for Scaffold
             builder: (context) => AppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -383,12 +376,10 @@ class _MyReviewState extends State<MyReview> {
                   fontSize: 20,
                 ),
               ),
-          
             ),
           ),
         ),
       ),
-
 
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
@@ -559,7 +550,7 @@ class ReviewItem {
   final String docId;
   final String productTitle;
   final String orderId;
-  final String productId; // added this field
+  final String productId;
   final int rating;
   final String review;
   final String productImage;

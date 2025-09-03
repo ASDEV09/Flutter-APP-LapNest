@@ -14,8 +14,7 @@ class PoliciesPage extends StatefulWidget {
 }
 
 class _PoliciesPageState extends State<PoliciesPage> {
-  int _selectedIndex = 3; // profile ki tarha index maintain karna
-
+  int _selectedIndex = 3;
   void _onBottomNavTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -52,7 +51,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0F2C), // ✅ Dark background
+      backgroundColor: const Color(0xFF0A0F2C),
       appBar: PreferredSize(
   preferredSize: const Size.fromHeight(kToolbarHeight),
   child: Container(
@@ -66,7 +65,7 @@ class _PoliciesPageState extends State<PoliciesPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(), // Go back
+          onPressed: () => Navigator.of(context).pop(), 
         ),
         title: Text(
           'Our Policies',
@@ -125,7 +124,6 @@ class _PoliciesPageState extends State<PoliciesPage> {
         ],
       ),
 
-      // ✅ Bottom nav bar same as ProfilePage
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onBottomNavTapped,
@@ -133,14 +131,13 @@ class _PoliciesPageState extends State<PoliciesPage> {
     );
   }
 
-  // 🔹 Helper Widget for section box with border + background
   Widget _buildPolicySection(String title, String content) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B), // ✅ Inside background
-        border: Border.all(color: Colors.grey, width: 1), // ✅ Grey border
+        color: const Color(0xFF1E293B),
+        border: Border.all(color: Colors.grey, width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

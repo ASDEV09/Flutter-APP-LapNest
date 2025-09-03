@@ -11,7 +11,7 @@ class FullScreenImage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       body: GestureDetector(
-        onTap: () => Navigator.pop(context), // Tap to close
+        onTap: () => Navigator.pop(context),
         child: Center(
           child: InteractiveViewer(
             panEnabled: true,

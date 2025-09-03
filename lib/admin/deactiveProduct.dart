@@ -104,7 +104,6 @@ class _DeactivatedProductsListState extends State<DeactivatedProductsList> {
           drawer: AppDrawer(user: currentUser),
           body: Column(
             children: [
-              // 🔍 Search Bar (sirf controller se manage hoga, setState ni hoga)
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: TextField(
@@ -124,7 +123,6 @@ class _DeactivatedProductsListState extends State<DeactivatedProductsList> {
                 ),
               ),
 
-              // 🔥 Ab sirf yeh part reload hoga
               Expanded(
                 child: StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
@@ -144,7 +142,6 @@ class _DeactivatedProductsListState extends State<DeactivatedProductsList> {
                       ));
                     }
 
-                    // 👇 Filter inside ValueListenableBuilder (sirf list rebuild hogi)
                     return ValueListenableBuilder(
                       valueListenable: _searchController,
                       builder: (context, value, _) {

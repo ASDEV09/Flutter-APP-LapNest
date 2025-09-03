@@ -105,7 +105,7 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
     if (confirmed == true) {
       try {
         await FirebaseFirestore.instance
-            .collection('deliveredOrders')
+            .collection('orders')
             .doc(docId)
             .delete();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -177,7 +177,6 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Product Image
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: (item['image'] != null)
@@ -195,7 +194,6 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
                       ),
                       const SizedBox(width: 10),
 
-                      // Product Info
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,8 +337,8 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('deliveredOrders')
-                  .orderBy('deliveredAt', descending: true)
+                  .collection('orders')
+                  .where('status', isEqualTo: 'delivered')
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -358,7 +356,8 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
 
                 final deliveredOrders = snapshot.data!.docs.where((doc) {
                   final data = doc.data() as Map<String, dynamic>;
-                  final orderId = data['orderId']?.toString().toLowerCase() ?? "";
+                  final orderId =
+                      data['orderId']?.toString().toLowerCase() ?? "";
                   return orderId.contains(searchQuery.toLowerCase());
                 }).toList();
 
@@ -393,14 +392,13 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
                           horizontal: 16,
                           vertical: 12,
                         ),
-                        // yahan icon ki jagah image lagani hai
                         leading: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child:
                               (data['items'] != null &&
                                   data['items'].isNotEmpty)
                               ? Image.asset(
-                                  data['items'][0]['image'], // items array ka pehla image
+                                  data['items'][0]['image'], 
                                   width: 48,
                                   height: 48,
                                   fit: BoxFit.cover,
@@ -409,7 +407,7 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
                                   Icons.image,
                                   color: Colors.grey,
                                   size: 28,
-                                ), // fallback agar image na ho
+                                ), 
                         ),
                         title: Text(
                           "Order #${orderId.toString().substring(0, 8)}",
@@ -420,7 +418,7 @@ class _AdminDeliveredOrdersPageState extends State<AdminDeliveredOrdersPage> {
                           ),
                         ),
                         subtitle: Text(
-                          "User: $recipientName\nTotal: Rs. $total", // 👈 \n se line break
+                          "User: $recipientName\nTotal: Rs. $total",  
                           style: GoogleFonts.poppins(
                             color: Colors.white70,
                             fontSize: 12,

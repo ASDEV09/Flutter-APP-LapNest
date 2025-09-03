@@ -7,8 +7,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import '../services/email.dart';
 
 class AdminOrdersPage extends StatefulWidget {
   const AdminOrdersPage({Key? key}) : super(key: key);
@@ -74,88 +73,74 @@ class _AdminOrdersPageState extends State<AdminOrdersPage> {
     }
   }
 
-Future<void> sendOrderShippedEmail({
-  required String userEmail,
-  required String userName,
-  required String orderId,
-}) async {
-  const serviceId = "service_hdki9l4";   // 👈 apna Service ID
-  const templateId = "template_tqzlssz"; // 👈 apna Template ID
-  const userId = "nNjOoW7NHuYkE4PT6";    // 👈 apna Public Key
+  Future<void> markOrderAsShipped(
+    BuildContext context,
+    String docId,
+    Map<String, dynamic> orderData,
+  ) async {
+    try {
+      final List<dynamic> itemsWithProductId = orderData['items'] ?? [];
 
-  final url = Uri.parse("https://api.emailjs.com/api/v1.0/email/send");
+      final updatedOrderData = {
+        ...orderData,
+        'status': 'shipped', 
+        'shippedAt': Timestamp.now(),
+        'orderId': docId,
+        'items': itemsWithProductId,
+      };
 
-  final response = await http.post(
-    url,
-    headers: {
-      "origin": "http://localhost",
-      "Content-Type": "application/json",
-    },
-    body: json.encode({
-      "service_id": serviceId,
-      "template_id": templateId,
-      "user_id": userId,
-      "template_params": {
-        "user_email": userEmail,
-        "user_name": userName,
-        "order_id": orderId,
-      }
-    }),
-  );
+      await FirebaseFirestore.instance
+          .collection('orders')
+          .doc(docId)
+          .update(updatedOrderData);
 
-  if (response.statusCode == 200) {
-    print("✅ Email sent to $userEmail");
-  } else {
-    print("❌ Email failed: ${response.body}");
-  }
-}
+      String userId = orderData['userId'];
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
 
-Future<void> markOrderAsShipped(
-  BuildContext context,
-  String docId,
-  Map<String, dynamic> orderData,
-) async {
-  try {
-    final List<dynamic> itemsWithProductId = orderData['items'] ?? [];
+      final userEmail = userDoc.data()?['email'] ?? "unknown@email.com";
+      final customerName = userDoc.data()?['userName'] ?? "Customer";
 
-    final updatedOrderData = {
-      ...orderData,
-      'shippedAt': Timestamp.now(),
-      'orderId': docId,
-      'items': itemsWithProductId,
-    };
+      String itemsTable = itemsWithProductId.map((item) {
+        final title = item['title'] ?? "Unknown Item";
+        final quantity = item['quantity'] ?? 1; 
+        final price = item['price'] ?? 0;
 
-    // Move order to shippedOrders
-    await FirebaseFirestore.instance
-        .collection('shippedOrders')
-        .doc(docId)
-        .set(updatedOrderData);
+        return """
+        <tr style="border-bottom:1px solid #ddd;">
+          <td style="padding:8px;">$title</td>
+          <td style="padding:8px; text-align:center;">$quantity</td>
+          <td style="padding:8px; text-align:right;">Rs. $price</td>
+        </tr>
+      """;
+      }).join();
 
-    // Remove from active orders
-    await FirebaseFirestore.instance.collection('orders').doc(docId).delete();
+      double totalBill = (orderData['total'] ?? 0).toDouble();
 
-    // 👇 Send email if email exists
-    final email = orderData['email'];
-    if (email != null && email.toString().isNotEmpty) {
-      await sendOrderShippedEmail(
-        userEmail: email,
-        userName: orderData['name'] ?? "Customer",
+      await EmailService.sendShippedConfirmationEmail(
+        toEmail: userEmail,
+        customerName: customerName,
+        status: "Shipped",
         orderId: docId,
+        items: List<Map<String, dynamic>>.from(itemsWithProductId),
+        totalBill: totalBill,
+        itemsTable: itemsTable,
+        firstline: "🚚 On the Way!",
+        secline:
+            "Your package is now on the way and should arrive within 2–5 business days.",
       );
-    } else {
-      print("⚠️ No email found for this order.");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Order marked as shipped & email sent")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error shipping order: $e")));
     }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Order marked as shipped & email sent")),
-    );
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Error shipping order: $e")),
-    );
   }
-}
-
 
   Future<void> cancelOrder(DocumentSnapshot order, String reason) async {
     final data = order.data() as Map<String, dynamic>;
@@ -227,7 +212,6 @@ Future<void> markOrderAsShipped(
                 ),
                 const SizedBox(height: 8),
 
-                // Items list
                 ...items.map((item) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -392,7 +376,7 @@ Future<void> markOrderAsShipped(
       body: Column(
         children: [
           const AdminOrderTabsWidget(selectedIndex: 0),
- Padding(
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               style: const TextStyle(color: Colors.white),
@@ -417,8 +401,13 @@ Future<void> markOrderAsShipped(
 
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance.collection('orders').snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('orders')
+                  .where(
+                    'status',
+                    isEqualTo: 'pending',
+                  )  
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -435,17 +424,18 @@ Future<void> markOrderAsShipped(
                   );
                 }
 
-                // 🔎 Apply Order ID Search
                 final orders = snapshot.data!.docs.where((doc) {
                   final orderId = doc.id.toLowerCase();
                   return searchQuery.isEmpty ||
-                      orderId.contains(searchQuery); // partial match bhi
+                      orderId.contains(searchQuery);
                 }).toList();
 
                 if (orders.isEmpty) {
                   return Center(
-                    child: Text("No matching order found",
-                        style: TextStyle(color: textColor)),
+                    child: Text(
+                      "No matching order found",
+                      style: TextStyle(color: textColor),
+                    ),
                   );
                 }
 
@@ -478,7 +468,7 @@ Future<void> markOrderAsShipped(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 3,
-                          color: const Color(0xFF1B1F36), // tumhara card color
+                          color: const Color(0xFF1B1F36),
                           child: Padding(
                             padding: const EdgeInsets.all(12),
                             child: Column(
@@ -487,14 +477,13 @@ Future<void> markOrderAsShipped(
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // 👇 Image section
                                     ClipRRect(
                                       borderRadius: BorderRadius.circular(6),
                                       child:
                                           (data['items'] != null &&
                                               data['items'].isNotEmpty)
                                           ? Image.network(
-                                              data['items'][0]['image'], // Firestore ka pehla image
+                                              data['items'][0]['image'],
                                               width: 70,
                                               height: 70,
                                               fit: BoxFit.cover,
@@ -517,7 +506,6 @@ Future<void> markOrderAsShipped(
                                     ),
                                     const SizedBox(width: 10),
 
-                                    // 👇 Texts section
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -574,7 +562,6 @@ Future<void> markOrderAsShipped(
                                         } else if (value == 'pdf') {
                                           final pdf = pw.Document();
 
-                                          // ---------------- PAGE 1 : Invoice ----------------
                                           pdf.addPage(
                                             pw.Page(
                                               margin: const pw.EdgeInsets.all(
@@ -720,7 +707,6 @@ Future<void> markOrderAsShipped(
                                             ),
                                           );
 
-                                          // ---------------- PAGE 2 : Shipping Label ----------------
                                           pdf.addPage(
                                             pw.Page(
                                               pageFormat: PdfPageFormat.a6,
@@ -784,7 +770,6 @@ Future<void> markOrderAsShipped(
                                             ),
                                           );
 
-                                          // Show PDF (download/print)
                                           await Printing.layoutPdf(
                                             onLayout: (format) async =>
                                                 pdf.save(),
@@ -862,9 +847,9 @@ Future<void> markOrderAsShipped(
                                                   TextButton(
                                                     style: TextButton.styleFrom(
                                                       backgroundColor: Colors
-                                                          .deepPurple, // 🔴 Button ka background
+                                                          .deepPurple,
                                                       foregroundColor: Colors
-                                                          .white, // ⚪ Text ka color
+                                                          .white,
                                                       padding:
                                                           const EdgeInsets.symmetric(
                                                             horizontal: 16,
@@ -908,9 +893,9 @@ Future<void> markOrderAsShipped(
                                           label: const Text(
                                             "Mark as Shipped",
                                             softWrap:
-                                                false, // 👈 force single line
+                                                false,
                                             overflow: TextOverflow
-                                                .ellipsis, // 👈 agar text fit na ho to ...
+                                                .ellipsis,
                                           ),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.deepPurple,
@@ -1057,7 +1042,6 @@ Future<void> markOrderAsShipped(
                                         icon: const Icon(Icons.cancel_outlined),
                                         label: const Text("Cancel Order"),
                                         style: OutlinedButton.styleFrom(
-                                          // side: const BorderSide(color: Colors.red),
                                           foregroundColor: Colors.white,
                                           padding: const EdgeInsets.symmetric(
                                             vertical: 6,

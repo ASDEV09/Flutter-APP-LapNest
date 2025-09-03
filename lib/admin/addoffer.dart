@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'list_offers_screen.dart'; // Import ListOffersScreen
+import 'list_offers_screen.dart';
 import 'app_drawer.dart';
 
 class AddOffer extends StatefulWidget {

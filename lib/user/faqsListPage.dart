@@ -21,7 +21,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0F2C), // ✅ Background color
+      backgroundColor: const Color(0xFF0A0F2C),
     appBar: PreferredSize(
   preferredSize: const Size.fromHeight(kToolbarHeight),
   child: Container(
@@ -35,7 +35,7 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(), // Go back
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Help Center',
@@ -52,7 +52,6 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
       body: Column(
         children: [
-          // Tabs Row
           Container(
             color: const Color(0xFF0A0F2C),
             child: Row(
@@ -80,8 +79,6 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
 
           const SizedBox(height: 8),
 
-          // Categories
-          // Categories
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -121,8 +118,6 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
             ),
           ),
           const SizedBox(height: 8),
-
-          // FAQ List
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: faqsRef
@@ -177,11 +172,11 @@ class _HelpCenterPageState extends State<HelpCenterPage> {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1E293B), // ✅ FAQ background
+                        color: const Color(0xFF1E293B),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: Colors.white,
-                        ), // ✅ White border
+                        ),
                       ),
                       child: Theme(
                         data: Theme.of(context).copyWith(
