@@ -63,89 +63,119 @@ class _CheckoutPageState extends State<CheckoutPage> {
     _fetchAddress();
   }
 
-  Future<void> _placeOrder() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+Future<void> _placeOrder() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return;
 
-    final cartItems = await FirebaseFirestore.instance
-        .collection('carts')
-        .doc(user.uid)
-        .collection('items')
-        .get();
+  // ✅ Cart items fetch karo
+  final cartItems = await FirebaseFirestore.instance
+      .collection('carts')
+      .doc(user.uid)
+      .collection('items')
+      .get();
 
-    final items = cartItems.docs.map((doc) {
-      final data = doc.data();
-      return {...data, 'productId': doc.id};
-    }).toList();
-
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
-
-    final userEmail = userDoc.data()?['email'] ?? "unknown@email.com";
-    final customerName = userDoc.data()?['userName'] ?? "Customer";
-
-    final orderData = {
-      'userId': user.uid,
-      'name': _name,
-      'address': _addr,
-      'contact': _contact,
-      'status': "pending",
-      'deliveryType': _deliveryType,
-      'paymentMethod': _selectedPayment,
-      'total': widget.total,
-      'timestamp': FieldValue.serverTimestamp(),
-      'items': items,
+  // ✅ Har item ka asli productId use karo (jo cart me already save hona chahiye)
+  final items = cartItems.docs.map((doc) {
+    final data = doc.data();
+    return {
+      ...data,
+      'cartItemId': doc.id, // 👈 Ab sirf reference ke liye
     };
+  }).toList();
 
-    final orderRef = await FirebaseFirestore.instance
-        .collection('orders')
-        .add(orderData);
-    final orderId = orderRef.id;
+  final userDoc = await FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .get();
 
-    String itemsTable = items.map((item) {
-      final title = item['title'] ?? "Unknown Item";
-      final quantity = item['quantity'] ?? 1;
-      final price = item['price'] ?? 0;
+  final userEmail = userDoc.data()?['email'] ?? "unknown@email.com";
+  final customerName = userDoc.data()?['userName'] ?? "Customer";
 
-      return """
-    <tr style="border-bottom:1px solid #ddd;">
-      <td style="padding:8px;">$title</td>
-      <td style="padding:8px; text-align:center;">$quantity</td>
-      <td style="padding:8px; text-align:right;">Rs. $price</td>
-    </tr>
-  """;
-    }).join();
+  final orderData = {
+    'userId': user.uid,
+    'name': _name,
+    'address': _addr,
+    'contact': _contact,
+    'status': "pending",
+    'deliveryType': _deliveryType,
+    'paymentMethod': _selectedPayment,
+    'total': widget.total,
+    'timestamp': FieldValue.serverTimestamp(),
+    'items': items,
+  };
 
-double totalBill = (orderData['total'] as num).toDouble();
-    await EmailService.sendShippedConfirmationEmail(
-      toEmail: userEmail,
-      customerName: customerName,
-      status: "Pending",
-      orderId: orderId,
-      items: items,
-      totalBill: totalBill,
-      itemsTable: itemsTable,
-      firstline: "🎉 Order Placed Successfully!",
-      secline:
-          "Your order has been placed successfully. We'll keep you updated on the status.",
-    );
+  final orderRef =
+      await FirebaseFirestore.instance.collection('orders').add(orderData);
+  final orderId = orderRef.id;
 
-    for (var doc in cartItems.docs) {
-      await doc.reference.delete();
-    }
+  // --- 📉 Reduce stock from products collection
+  for (var item in items) {
+    final productId = item['productId']; // 👈 ab asli products doc.id use ho raha
+    final orderedQty = item['quantity'] ?? 1;
 
-    if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Order placed successfully!')));
+    final productRef =
+        FirebaseFirestore.instance.collection('products').doc(productId);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const PlaceOrderPage()),
-    );
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final productSnap = await transaction.get(productRef);
+
+      if (productSnap.exists) {
+        final currentStock = (productSnap['quantity'] ?? 0) as int;
+        final newStock = currentStock - orderedQty;
+
+        if (newStock >= 0) {
+          transaction.update(productRef, {'quantity': newStock});
+        } else {
+          throw Exception("Not enough stock for ${item['title']}");
+        }
+      }
+    });
   }
+
+  // --- 📧 Email
+  String itemsTable = items.map((item) {
+    final title = item['title'] ?? "Unknown Item";
+    final quantity = item['quantity'] ?? 1;
+    final price = item['price'] ?? 0;
+
+    return """
+      <tr style="border-bottom:1px solid #ddd;">
+        <td style="padding:8px;">$title</td>
+        <td style="padding:8px; text-align:center;">$quantity</td>
+        <td style="padding:8px; text-align:right;">Rs. $price</td>
+      </tr>
+    """;
+  }).join();
+
+  double totalBill = (orderData['total'] as num).toDouble();
+  await EmailService.sendShippedConfirmationEmail(
+    toEmail: userEmail,
+    customerName: customerName,
+    status: "Pending",
+    orderId: orderId,
+    items: items,
+    totalBill: totalBill,
+    itemsTable: itemsTable,
+    firstline: "🎉 Order Placed Successfully!",
+    secline:
+        "Your order has been placed successfully. We'll keep you updated on the status.",
+  );
+
+  // --- 🗑️ Empty Cart
+  for (var doc in cartItems.docs) {
+    await doc.reference.delete();
+  }
+
+  if (!mounted) return;
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Order placed successfully!')),
+  );
+
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const PlaceOrderPage()),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

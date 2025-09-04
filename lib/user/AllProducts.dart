@@ -722,26 +722,51 @@ class _AllProductsState extends State<AllProducts> {
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 1,
                                       ),
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.deepPurple,
-                                          foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                      child: (data['quantity'] ?? 0) > 0
+                                          ? ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.deepPurple,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                    ),
+                                              ),
+                                              onPressed: () =>
+                                                  addToCart(context, data),
+                                              child: const Text(
+                                                "Add to Cart",
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                            )
+                                          : ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.redAccent,
+                                                foregroundColor: Colors.white,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                    ),
+                                              ),
+                                              onPressed: () => toggleWishlist(
+                                                data['docId'],
+                                                data,
+                                              ),
+                                              child: const Text(
+                                                "Add to Wishlist",
+                                                style: TextStyle(fontSize: 14),
+                                              ),
                                             ),
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                        ),
-                                        onPressed: () =>
-                                            addToCart(context, data),
-                                        child: const Text(
-                                          "Add to Cart",
-                                          style: TextStyle(fontSize: 14),
-                                        ),
-                                      ),
                                     ),
                                   ],
                                 ),
@@ -797,7 +822,7 @@ class SpecialOffersWidget extends StatelessWidget {
             CarouselSlider.builder(
               itemCount: offers.length,
               options: CarouselOptions(
-                height: 200, 
+                height: 200,
                 autoPlay: true,
                 autoPlayInterval: const Duration(seconds: 3),
                 enlargeCenterPage: true,

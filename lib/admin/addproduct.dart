@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:app/admin/app_drawer.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 class Addproduct extends StatefulWidget {
   const Addproduct({Key? key}) : super(key: key);
 
@@ -12,14 +13,18 @@ class Addproduct extends StatefulWidget {
 }
 
 class _AddproductState extends State<Addproduct> {
-  final CollectionReference products = FirebaseFirestore.instance.collection('products');
-  final CollectionReference users = FirebaseFirestore.instance.collection('users');
+  final CollectionReference products = FirebaseFirestore.instance.collection(
+    'products',
+  );
+  final CollectionReference users = FirebaseFirestore.instance.collection(
+    'users',
+  );
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController desController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
-  final TextEditingController brandController = TextEditingController();
   final TextEditingController pointController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
 
   List<String> descriptionPoints = [];
   final ImagePicker picker = ImagePicker();
@@ -30,6 +35,8 @@ class _AddproductState extends State<Addproduct> {
     "Education",
     "Accessories",
   ];
+  List<String> brands = [];
+  String? selectedBrand;
 
   String? thumbnailFilePath;
   List<String> imagePaths = [];
@@ -44,6 +51,24 @@ class _AddproductState extends State<Addproduct> {
     super.initState();
     user = FirebaseAuth.instance.currentUser;
     fetchUserRole();
+    fetchBrands(); // 👈 yeh add karo
+  }
+
+  Future<void> fetchBrands() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('brands')
+          .get();
+      final fetchedBrands = snapshot.docs
+          .map((doc) => doc['name'].toString())
+          .toList();
+
+      setState(() {
+        brands = fetchedBrands;
+      });
+    } catch (e) {
+      debugPrint("Error fetching brands: $e");
+    }
   }
 
   Future<void> fetchUserRole() async {
@@ -95,61 +120,68 @@ class _AddproductState extends State<Addproduct> {
       setState(() {});
     }
   }
-
-  Future<void> addProduct() async {
-    if (titleController.text.isEmpty ||
-        desController.text.isEmpty ||
-        priceController.text.isEmpty ||
-        brandController.text.isEmpty ||
-        thumbnailFilePath == null ||
-        imagePaths.isEmpty ||
-        descriptionPoints.isEmpty ||
-        selectedCategories.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Please fill all fields, add images, points & category",
-          ),
-          backgroundColor: Colors.redAccent,
+Future<void> addProduct() async {
+  if (titleController.text.isEmpty ||
+      desController.text.isEmpty ||
+      priceController.text.isEmpty ||
+      thumbnailFilePath == null ||
+      imagePaths.isEmpty ||
+      descriptionPoints.isEmpty ||
+      selectedCategories.isEmpty ||
+      selectedBrand == null) { // 👈 yahan check add kiya
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          "Please fill all fields, select brand, add images, points & category",
         ),
-      );
-      return;
-    }
-
-    try {
-      await products.add({
-        'title': titleController.text,
-        'brand': brandController.text,
-        'description': desController.text,
-        'description_points': descriptionPoints,
-        'price': double.parse(priceController.text),
-        'image': thumbnailFilePath,
-        'images': imagePaths,
-        'categories': selectedCategories,
-        'timestamp': FieldValue.serverTimestamp(),
-        'isActive': true,
-      });
-
-      titleController.clear();
-      desController.clear();
-      priceController.clear();
-      brandController.clear();
-      pointController.clear();
-      thumbnailFilePath = null;
-      imagePaths.clear();
-      descriptionPoints.clear();
-      selectedCategories.clear();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Product added successfully ✔"),
-          backgroundColor: Colors.black,
-        ),
-      );
-      setState(() {});
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to add product: $e")));
-    }
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    return;
   }
+
+  try {
+    await products.add({
+      'title': titleController.text,
+      'brand': selectedBrand,
+      'description': desController.text,
+      'description_points': descriptionPoints,
+      'price': double.parse(priceController.text),
+      'quantity': int.parse(quantityController.text),
+      'image': thumbnailFilePath,
+      'images': imagePaths,
+      'categories': selectedCategories,
+      'timestamp': FieldValue.serverTimestamp(),
+      'isActive': true,
+    });
+
+    titleController.clear();
+    desController.clear();
+    priceController.clear();
+    quantityController.clear();
+
+    setState(() {
+      selectedBrand = null;
+      // ❌ brands.clear();  // isse dropdown empty ho jata tha
+    });
+    pointController.clear();
+    thumbnailFilePath = null;
+    imagePaths.clear();
+    descriptionPoints.clear();
+    selectedCategories.clear();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Product added successfully ✔"),
+        backgroundColor: Colors.black,
+      ),
+    );
+    setState(() {});
+  } catch (e) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Failed to add product: $e")));
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -199,7 +231,7 @@ class _AddproductState extends State<Addproduct> {
               leading: IconButton(
                 icon: const Icon(Icons.menu),
                 onPressed: () {
-                  Scaffold.of(context).openDrawer(); 
+                  Scaffold.of(context).openDrawer();
                 },
               ),
             ),
@@ -231,14 +263,20 @@ class _AddproductState extends State<Addproduct> {
                 ElevatedButton.icon(
                   onPressed: pickThumbnail,
                   icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text("Select Thumbnail", style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    "Select Thumbnail",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 20,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -265,7 +303,10 @@ class _AddproductState extends State<Addproduct> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.remove_circle, color: Colors.redAccent),
+                          icon: const Icon(
+                            Icons.remove_circle,
+                            color: Colors.redAccent,
+                          ),
                           onPressed: () {
                             setState(() {
                               thumbnailFilePath = null;
@@ -288,14 +329,77 @@ class _AddproductState extends State<Addproduct> {
                 buildCategorySelector(),
                 const SizedBox(height: 24),
                 buildInputField("Title", titleController, Icons.title),
-                buildInputField("Brand", brandController, Icons.branding_watermark),
-                buildInputField("Description", desController, Icons.description, maxLines: 3),
-                buildInputField("Price", priceController, Icons.attach_money, keyboardType: TextInputType.number),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedBrand,
+                    decoration: InputDecoration(
+                      labelText: "Select Brand",
+                      labelStyle: const TextStyle(color: Colors.white),
+                      prefixIcon: const Icon(
+                        Icons.branding_watermark,
+                        color: Colors.white,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white),
+                      ),
+                    ),
+                    dropdownColor: const Color(0xFF1B1F36),
+                    style: const TextStyle(color: Colors.white),
+                    items: brands.map((brand) {
+                      return DropdownMenuItem(
+                        value: brand,
+                        child: Text(
+                          brand,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedBrand = value;
+                      });
+                    },
+                  ),
+                ),
+
+                buildInputField(
+                  "Description",
+                  desController,
+                  Icons.description,
+                  maxLines: 3,
+                ),
+                buildInputField(
+                  "Price",
+                  priceController,
+                  Icons.attach_money,
+                  keyboardType: TextInputType.number,
+                ),
+                buildInputField(
+                  "Quantity",
+                  quantityController,
+                  Icons.inventory,
+                  keyboardType: TextInputType.number,
+                ),
+
                 const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
-                      child: buildInputField("Add Feature Point", pointController, Icons.add),
+                      child: buildInputField(
+                        "Add Feature Point",
+                        pointController,
+                        Icons.add,
+                      ),
                     ),
                     IconButton(
                       onPressed: () {
@@ -306,7 +410,10 @@ class _AddproductState extends State<Addproduct> {
                           });
                         }
                       },
-                      icon: const Icon(Icons.add_circle, color: Colors.deepPurple),
+                      icon: const Icon(
+                        Icons.add_circle,
+                        color: Colors.deepPurple,
+                      ),
                     ),
                   ],
                 ),
@@ -339,8 +446,13 @@ class _AddproductState extends State<Addproduct> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text("Add Product", style: TextStyle(fontWeight: FontWeight.bold
-                    , color: Colors.white, )),
+                    child: const Text(
+                      "Add Product",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -366,7 +478,10 @@ class _AddproductState extends State<Addproduct> {
         ElevatedButton.icon(
           onPressed: onTap,
           icon: const Icon(Icons.photo_library, color: Colors.white),
-          label: const Text("Select Images", style: TextStyle(color: Colors.white)),
+          label: const Text(
+            "Select Images",
+            style: TextStyle(color: Colors.white),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple,
             foregroundColor: Colors.white,
@@ -380,78 +495,90 @@ class _AddproductState extends State<Addproduct> {
     );
   }
 
-Widget buildCategorySelector() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        "Select Categories",
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 16,
+  Widget buildCategorySelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Select Categories",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
         ),
-      ),
-      const SizedBox(height: 8),
-      Wrap(
-        spacing: 12,
-        runSpacing: 8,
-        children: availableCategories.map((category) {
-          final isSelected = selectedCategories.contains(category);
-          return ElevatedButton.icon(
-            onPressed: () {
-              setState(() {
-                if (isSelected) {
-                  selectedCategories.remove(category);
-                } else {
-                  selectedCategories.add(category);
-                }
-              });
-            },
-            icon: const Icon(Icons.category, color: Colors.white),
-            label: Text(
-              category,
-              style: TextStyle(color: isSelected ? Colors.black : Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? Colors.white : Colors.deepPurple,
-              foregroundColor: isSelected ? Colors.black : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            ),
-          );
-        }).toList(),
-      ),
-      const SizedBox(height: 16),
-      if (selectedCategories.isNotEmpty)
+        const SizedBox(height: 8),
         Wrap(
           spacing: 12,
           runSpacing: 8,
-          children: selectedCategories.map((category) {
-            return Chip(
-              label: Text(
-                category,
-                style: const TextStyle(color: Colors.white),
-              ),
-              backgroundColor: Colors.deepPurple,
-              deleteIcon: const Icon(Icons.remove_circle, color: Colors.redAccent),
-              onDeleted: () {
+          children: availableCategories.map((category) {
+            final isSelected = selectedCategories.contains(category);
+            return ElevatedButton.icon(
+              onPressed: () {
                 setState(() {
-                  selectedCategories.remove(category);
+                  if (isSelected) {
+                    selectedCategories.remove(category);
+                  } else {
+                    selectedCategories.add(category);
+                  }
                 });
               },
+              icon: const Icon(Icons.category, color: Colors.white),
+              label: Text(
+                category,
+                style: TextStyle(
+                  color: isSelected ? Colors.black : Colors.white,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isSelected ? Colors.white : Colors.deepPurple,
+                foregroundColor: isSelected ? Colors.black : Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
+              ),
             );
           }).toList(),
         ),
-    ],
-  );
-}
+        const SizedBox(height: 16),
+        if (selectedCategories.isNotEmpty)
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            children: selectedCategories.map((category) {
+              return Chip(
+                label: Text(
+                  category,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                backgroundColor: Colors.deepPurple,
+                deleteIcon: const Icon(
+                  Icons.remove_circle,
+                  color: Colors.redAccent,
+                ),
+                onDeleted: () {
+                  setState(() {
+                    selectedCategories.remove(category);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+      ],
+    );
+  }
 
-
-  Widget buildInputField(String label, TextEditingController controller, IconData icon,
-      {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+  Widget buildInputField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextField(

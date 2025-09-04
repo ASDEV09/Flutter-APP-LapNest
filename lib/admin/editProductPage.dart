@@ -22,14 +22,16 @@ class _EditProductPageState extends State<EditProductPage> {
   final picker = ImagePicker();
 
   late TextEditingController titleController;
-  late TextEditingController brandController;
   late TextEditingController desController;
   late TextEditingController priceController;
   late TextEditingController pointController;
+  late TextEditingController quantityController;
 
   List<String> descriptionPoints = [];
   String? thumbnailFilePath;
   List<String> imagePaths = [];
+  List<String> brands = [];
+  String? selectedBrand;
 
   List<String> selectedCategories = [];
   final List<String> availableCategories = [
@@ -41,11 +43,21 @@ class _EditProductPageState extends State<EditProductPage> {
 
   bool _isLoading = true;
   bool _isAdmin = false;
+  Future<void> fetchBrands() async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('brands')
+        .get();
+    setState(() {
+      brands = snapshot.docs.map((doc) => doc['name'] as String).toList();
+      selectedBrand = widget.productData['brand']; // pre-select
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _checkAdminAccess();
+    fetchBrands();
   }
 
   Future<void> _checkAdminAccess() async {
@@ -63,22 +75,29 @@ class _EditProductPageState extends State<EditProductPage> {
     if (doc.exists && doc.data()?['role'] == 'admin') {
       _isAdmin = true;
 
-      titleController =
-          TextEditingController(text: widget.productData['title']);
-      brandController =
-          TextEditingController(text: widget.productData['brand']);
-      desController =
-          TextEditingController(text: widget.productData['description']);
-      priceController = TextEditingController(
-          text: widget.productData['price'].toString());
-      pointController = TextEditingController();
+      titleController = TextEditingController(
+        text: widget.productData['title'],
+      );
 
-      descriptionPoints =
-          List<String>.from(widget.productData['description_points'] ?? []);
+      desController = TextEditingController(
+        text: widget.productData['description'],
+      );
+      priceController = TextEditingController(
+        text: widget.productData['price'].toString(),
+      );
+      pointController = TextEditingController();
+      quantityController = TextEditingController(
+        text: widget.productData['quantity'].toString(),
+      );
+
+      descriptionPoints = List<String>.from(
+        widget.productData['description_points'] ?? [],
+      );
       thumbnailFilePath = widget.productData['image'];
       imagePaths = List<String>.from(widget.productData['images'] ?? []);
-      selectedCategories =
-          List<String>.from(widget.productData['categories'] ?? []);
+      selectedCategories = List<String>.from(
+        widget.productData['categories'] ?? [],
+      );
     } else {
       Navigator.pop(context);
     }
@@ -107,16 +126,19 @@ class _EditProductPageState extends State<EditProductPage> {
 
   Future<void> updateProduct() async {
     if (titleController.text.isEmpty ||
-        brandController.text.isEmpty ||
         desController.text.isEmpty ||
         priceController.text.isEmpty ||
         thumbnailFilePath == null ||
         imagePaths.isEmpty ||
         descriptionPoints.isEmpty ||
-        selectedCategories.isEmpty) {
+        selectedCategories.isEmpty ||
+        selectedBrand == null) {
+      // ✅ brand check bhi
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please fill all fields, add images, points & category"),
+          content: Text(
+            "Please fill all fields, select brand, add images, points & category",
+          ),
           backgroundColor: Colors.redAccent,
         ),
       );
@@ -128,15 +150,16 @@ class _EditProductPageState extends State<EditProductPage> {
           .collection('products')
           .doc(widget.docId)
           .update({
-        'title': titleController.text.trim(),
-        'brand': brandController.text.trim(),
-        'description': desController.text.trim(),
-        'description_points': descriptionPoints,
-        'price': double.tryParse(priceController.text) ?? 0,
-        'image': thumbnailFilePath,
-        'images': imagePaths,
-        'categories': selectedCategories,
-      });
+            'title': titleController.text.trim(),
+            'brand': selectedBrand, // ✅ brand save
+            'description': desController.text.trim(),
+            'description_points': descriptionPoints,
+            'price': double.tryParse(priceController.text) ?? 0,
+            'quantity': int.tryParse(quantityController.text) ?? 0,
+            'image': thumbnailFilePath,
+            'images': imagePaths,
+            'categories': selectedCategories,
+          });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -147,9 +170,9 @@ class _EditProductPageState extends State<EditProductPage> {
 
       Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error updating: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error updating: $e")));
     }
   }
 
@@ -165,34 +188,34 @@ class _EditProductPageState extends State<EditProductPage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
-     appBar: PreferredSize(
-  preferredSize: const Size.fromHeight(kToolbarHeight),
-  child: Container(
-    decoration: const BoxDecoration(
-      color: Colors.transparent,
-      border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
-    ),
-    child: AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      title: Text(
-        'Edit Product',
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.transparent,
+            border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Text(
+              'Edit Product',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            iconTheme: const IconThemeData(color: Colors.white),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
         ),
       ),
-      iconTheme: const IconThemeData(color: Colors.white),
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back), 
-        onPressed: () {
-          Navigator.pop(context);
-        },
-      ),
-    ),
-  ),
-),
 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -210,14 +233,18 @@ class _EditProductPageState extends State<EditProductPage> {
                 const Text(
                   "Thumbnail Image",
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.white),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 ElevatedButton.icon(
                   onPressed: pickThumbnail,
                   icon: const Icon(Icons.upload, color: Colors.white),
-                  label: const Text("Select Thumbnail",
-                      style: TextStyle(color: Colors.white)),
+                  label: const Text(
+                    "Select Thumbnail",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
                     shape: RoundedRectangleBorder(
@@ -244,16 +271,89 @@ class _EditProductPageState extends State<EditProductPage> {
 
                 const SizedBox(height: 24),
                 buildInputField("Title", titleController, Icons.title),
-                buildInputField("Brand", brandController, Icons.branding_watermark),
-                buildInputField("Description", desController, Icons.description, maxLines: 3),
-                buildInputField("Price", priceController, Icons.attach_money,
-                    keyboardType: TextInputType.number),
+                const Text(
+                  "Select Brand",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedBrand,
+                  items: brands.map((brand) {
+                    return DropdownMenuItem(
+                      value: brand,
+                      child: Text(
+                        brand,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedBrand = value;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    labelText: "Brand",
+                    labelStyle: const TextStyle(color: Colors.white),
+                    prefixIcon: const Icon(
+                      Icons.branding_watermark,
+                      color: Colors.white,
+                    ), // ✅ icon
+                    filled: true,
+                    fillColor: const Color(0xFF1B1F36),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: Colors.deepPurple,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                  dropdownColor: const Color(0xFF1B1F36),
+                  iconEnabledColor: Colors.white, // ✅ dropdown arrow white
+                  style: const TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 16),
+
+                buildInputField(
+                  "Description",
+                  desController,
+                  Icons.description,
+                  maxLines: 3,
+                ),
+                buildInputField(
+                  "Price",
+                  priceController,
+                  Icons.attach_money,
+                  keyboardType: TextInputType.number,
+                ),
+
+                buildInputField(
+                  "Quantity",
+                  quantityController,
+                  Icons.inventory,
+                  keyboardType: TextInputType.number,
+                ),
 
                 Row(
                   children: [
                     Expanded(
                       child: buildInputField(
-                          "Add Feature Point", pointController, Icons.add),
+                        "Add Feature Point",
+                        pointController,
+                        Icons.add,
+                      ),
                     ),
                     IconButton(
                       onPressed: () {
@@ -264,9 +364,11 @@ class _EditProductPageState extends State<EditProductPage> {
                           });
                         }
                       },
-                      icon: const Icon(Icons.add_circle,
-                          color: Colors.deepPurple),
-                    )
+                      icon: const Icon(
+                        Icons.add_circle,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
                   ],
                 ),
                 if (descriptionPoints.isNotEmpty)
@@ -302,10 +404,12 @@ class _EditProductPageState extends State<EditProductPage> {
                     child: const Text(
                       "Update Product",
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -329,8 +433,10 @@ class _EditProductPageState extends State<EditProductPage> {
         ElevatedButton.icon(
           onPressed: onTap,
           icon: const Icon(Icons.photo_library, color: Colors.white),
-          label:
-              const Text("Select Images", style: TextStyle(color: Colors.white)),
+          label: const Text(
+            "Select Images",
+            style: TextStyle(color: Colors.white),
+          ),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.deepPurple,
             shape: RoundedRectangleBorder(
@@ -373,19 +479,20 @@ class _EditProductPageState extends State<EditProductPage> {
               icon: const Icon(Icons.category, color: Colors.white),
               label: Text(
                 category,
-                style:
-                    TextStyle(color: isSelected ? Colors.black : Colors.white),
+                style: TextStyle(
+                  color: isSelected ? Colors.black : Colors.white,
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    isSelected ? Colors.white : Colors.deepPurple,
-                foregroundColor:
-                    isSelected ? Colors.black : Colors.white,
+                backgroundColor: isSelected ? Colors.white : Colors.deepPurple,
+                foregroundColor: isSelected ? Colors.black : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
               ),
             );
           }).toList(),
@@ -402,8 +509,10 @@ class _EditProductPageState extends State<EditProductPage> {
                   style: const TextStyle(color: Colors.white),
                 ),
                 backgroundColor: Colors.deepPurple,
-                deleteIcon:
-                    const Icon(Icons.remove_circle, color: Colors.redAccent),
+                deleteIcon: const Icon(
+                  Icons.remove_circle,
+                  color: Colors.redAccent,
+                ),
                 onDeleted: () {
                   setState(() {
                     selectedCategories.remove(category);
@@ -416,9 +525,13 @@ class _EditProductPageState extends State<EditProductPage> {
     );
   }
 
-  Widget buildInputField(String label, TextEditingController controller,
-      IconData icon,
-      {int maxLines = 1, TextInputType keyboardType = TextInputType.text}) {
+  Widget buildInputField(
+    String label,
+    TextEditingController controller,
+    IconData icon, {
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextField(

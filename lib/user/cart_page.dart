@@ -114,7 +114,7 @@ class _CartPageState extends State<CartPage> {
     }
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
-       appBar: PreferredSize(
+      appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: Container(
           decoration: const BoxDecoration(
@@ -133,7 +133,6 @@ class _CartPageState extends State<CartPage> {
                   fontSize: 20,
                 ),
               ),
-          
             ),
           ),
         ),
@@ -204,15 +203,22 @@ class _CartPageState extends State<CartPage> {
                                   context: context,
                                   builder: (context) => AlertDialog(
                                     backgroundColor: Color(0xFF1E293B),
-                                    title: const Text('Remove Item', style: TextStyle(color: Colors.white)),
+                                    title: const Text(
+                                      'Remove Item',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                     content: const Text(
-                                      'Do you want to remove this item from the cart?', style: TextStyle(color: Colors.white)
+                                      'Do you want to remove this item from the cart?',
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                     actions: [
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.pop(context, false),
-                                        child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+                                        child: const Text(
+                                          'Cancel',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () =>
@@ -247,10 +253,7 @@ class _CartPageState extends State<CartPage> {
                                 offset: const Offset(0, 2),
                               ),
                             ],
-                            border: Border.all(
-                              color: Colors.grey,
-                              width: 0.5,
-                            ),
+                            border: Border.all(color: Colors.grey, width: 0.5),
                           ),
                           child: Row(
                             children: [
@@ -334,13 +337,45 @@ class _CartPageState extends State<CartPage> {
                                               ),
                                               IconButton(
                                                 icon: const Icon(Icons.add),
-                                                onPressed: () {
+                                                onPressed: () async {
                                                   final currentQty =
                                                       data['quantity'] ?? 1;
-                                                  updateQuantity(
-                                                    doc.id,
-                                                    currentQty + 1,
-                                                  );
+
+                                                  // 🔹 Get available stock from products collection
+                                                  final productSnap =
+                                                      await FirebaseFirestore
+                                                          .instance
+                                                          .collection(
+                                                            'products',
+                                                          )
+                                                          .doc(
+                                                            data['productId'],
+                                                          )
+                                                          .get();
+
+                                                  if (productSnap.exists) {
+                                                    final availableQty =
+                                                        productSnap['quantity'] ??
+                                                        0;
+
+                                                    if (currentQty <
+                                                        availableQty) {
+                                                      updateQuantity(
+                                                        doc.id,
+                                                        currentQty + 1,
+                                                      );
+                                                    } else {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            "Not enough stock available",
+                                                          ),
+                                                        ),
+                                                      );
+                                                    }
+                                                  }
                                                 },
                                               ),
                                             ],
@@ -367,11 +402,8 @@ class _CartPageState extends State<CartPage> {
                 decoration: BoxDecoration(
                   color: const Color(0xFF0A0F2C),
 
-                  borderRadius: BorderRadius.circular(20), 
-                  border: Border.all(
-                    color: Colors.grey, 
-                    width: 0.5,
-                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Colors.grey, width: 0.5),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,7 +415,7 @@ class _CartPageState extends State<CartPage> {
                           "Total price",
                           style: GoogleFonts.poppins(
                             fontSize: 14,
-                            color: Colors.white,  
+                            color: Colors.white,
                           ),
                         ),
                         Text(
@@ -407,7 +439,115 @@ class _CartPageState extends State<CartPage> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
+                        List<Map<String, dynamic>> outOfStockItems = [];
+
+                        // 🔹 Check all cart items
+                        for (var doc in docs) {
+                          final data = doc.data() as Map<String, dynamic>;
+                          final productSnap = await FirebaseFirestore.instance
+                              .collection('products')
+                              .doc(data['productId'])
+                              .get();
+
+                          if (productSnap.exists) {
+                            final availableQty = productSnap['quantity'] ?? 0;
+
+                            if (availableQty == 0) {
+                              outOfStockItems.add({
+                                "id": doc.id,
+                                "title": data['title'] ?? 'Unknown Product',
+                              });
+                            }
+                          }
+                        }
+
+                        if (outOfStockItems.isNotEmpty) {
+                          // 🚫 Show dialog with out-of-stock items + remove option
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                backgroundColor: const Color(0xFF1E293B),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                title: const Text(
+                                  "Out of Stock",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "These products are out of stock:",
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    ...outOfStockItems.map(
+                                      (item) => Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              "• ${item['title']}",
+                                              style: const TextStyle(
+                                                color: Colors.redAccent,
+                                              ),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              // remove from cart
+                                              await cartRef
+                                                  .doc(item['id'])
+                                                  .delete();
+                                              Navigator.pop(
+                                                context,
+                                              ); // close dialog
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  content: Text(
+                                                    "${item['title']} removed from cart",
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                            child: const Text(
+                                              "Remove",
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text(
+                                      "Close",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          return; // 🚫 Stop checkout
+                        }
+
+                        // ✅ Proceed to Checkout
                         Navigator.push(
                           context,
                           MaterialPageRoute(

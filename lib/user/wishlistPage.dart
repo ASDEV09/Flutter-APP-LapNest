@@ -51,11 +51,7 @@ class _WishlistPageState extends State<WishlistPage> {
           ),
           bottom: const PreferredSize(
             preferredSize: Size.fromHeight(1),
-            child: Divider(
-              color: Colors.grey,
-              height: 1,
-              thickness: 1,
-            ),
+            child: Divider(color: Colors.grey, height: 1, thickness: 1),
           ),
         ),
         body: Center(
@@ -195,13 +191,46 @@ class _WishlistPageState extends State<WishlistPage> {
                         onPressed: (_) async {
                           final user = FirebaseAuth.instance.currentUser;
                           if (user == null) {
-                            ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Please log in to use cart'),
+                                content: Text('⚠️ Please log in to use cart'),
+                                behavior: SnackBarBehavior.floating,
                               ),
                             );
                             return;
                           }
+
+                          // ✅ Product ki latest quantity check karo
+                          final productRef = FirebaseFirestore.instance
+                              .collection('products')
+                              .doc(data['productId'] ?? data['docId']);
+                          final productSnap = await productRef.get();
+
+                          if (!productSnap.exists) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('❌ Product not found'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          final stockQty = productSnap['quantity'] ?? 0;
+
+                          // ✅ agar stock 0 hai to message show karo aur cart me na add karo
+                          if (stockQty <= 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('❌ This product is out of stock'),
+                                backgroundColor: Colors.red,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          // ✅ agar product already cart me hai
                           final cartRef = FirebaseFirestore.instance
                               .collection('carts')
                               .doc(user.uid)
@@ -216,16 +245,18 @@ class _WishlistPageState extends State<WishlistPage> {
 
                           if (existing.docs.isNotEmpty) {
                             await wishlistRef.doc(doc.id).delete();
-                            ScaffoldMessenger.of(scaffoldContext).showSnackBar(
+                            ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'Already in cart, removed from wishlist',
+                                  '⚠️ Already in cart, removed from wishlist',
                                 ),
+                                behavior: SnackBarBehavior.floating,
                               ),
                             );
                             return;
                           }
 
+                          // ✅ agar stock available hai to cart me add karo
                           await cartRef.add({
                             'productId': data['productId'] ?? data['docId'],
                             'title': data['title'],
@@ -238,14 +269,18 @@ class _WishlistPageState extends State<WishlistPage> {
 
                           await wishlistRef.doc(doc.id).delete();
 
-                          ScaffoldMessenger.of(scaffoldContext).showSnackBar(
-                            const SnackBar(content: Text('Moved to cart')),
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('✅ Moved to cart'),
+                              behavior: SnackBarBehavior.floating,
+                            ),
                           );
                         },
                         backgroundColor: Colors.deepPurple,
                         foregroundColor: Colors.white,
                         icon: Icons.shopping_cart,
                       ),
+
                       SlidableAction(
                         onPressed: (_) async {
                           final confirm = await showDialog<bool>(
@@ -335,7 +370,7 @@ class _WishlistPageState extends State<WishlistPage> {
                               ? Image.network(
                                   imageUrl,
                                   width: 70,
-                                  height: 70, 
+                                  height: 70,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       const Icon(
@@ -371,10 +406,8 @@ class _WishlistPageState extends State<WishlistPage> {
                                   fontWeight: FontWeight.w300,
                                   color: Colors.grey,
                                 ),
-                                maxLines:
-                                    2,
-                                overflow: TextOverflow
-                                    .ellipsis, 
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               const SizedBox(height: 8),
                               Text(

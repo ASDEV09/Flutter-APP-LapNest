@@ -489,9 +489,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                                   FutureBuilder<DocumentSnapshot>(
                                     future: FirebaseFirestore.instance
                                         .collection('users')
-                                        .doc(
-                                          review['userId'],
-                                        )
+                                        .doc(review['userId'])
                                         .get(),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState ==
@@ -688,7 +686,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ],
         ),
       ),
-
       bottomSheet: Material(
         color: const Color(0xFF0A0F2C),
         child: Container(
@@ -700,27 +697,50 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Expanded(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
+                      backgroundColor: widget.data['quantity'] == 0
+                          ? Colors
+                                .red // 🔴 Wishlist ke liye red background
+                          : Colors
+                                .deepPurple, // 🟣 Cart ke liye purple background
+                      foregroundColor: Colors.white, // ✅ text aur icon white
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
-                    onPressed: () => addToCart(context),
-                    icon: const Icon(
-                      Icons.add_shopping_cart,
+                    onPressed: () {
+                      if (widget.data['quantity'] == 0) {
+                        // ✅ Quantity zero → wishlist add
+                        toggleWishlist(context);
+                      } else {
+                        // ✅ Quantity available → cart add
+                        addToCart(context);
+                      }
+                    },
+                    icon: Icon(
+                      widget.data['quantity'] == 0
+                          ? Icons.favorite_border
+                          : Icons.add_shopping_cart,
                       color: Colors.white,
                     ),
-                    label: const Text('Add to Cart'),
+                    label: Text(
+                      widget.data['quantity'] == 0
+                          ? 'Add to Wishlist'
+                          : 'Add to Cart',
+                    ),
                   ),
                 ),
+
                 const SizedBox(width: 16),
-                IconButton(
-                  icon: Icon(
-                    isInWishlist ? Icons.favorite : Icons.favorite_border,
-                    color: isInWishlist ? Colors.red : Colors.white,
-                    size: 32,
+
+                // ❤️ Heart icon sirf tab show hoga jab quantity > 0 ho
+                if (widget.data['quantity'] != 0)
+                  IconButton(
+                    icon: Icon(
+                      isInWishlist ? Icons.favorite : Icons.favorite_border,
+                      color: isInWishlist ? Colors.red : Colors.white,
+                      size: 32,
+                    ),
+                    onPressed: () => toggleWishlist(context),
                   ),
-                  onPressed: () => toggleWishlist(context),
-                ),
+
                 const SizedBox(width: 16),
                 IconButton(
                   icon: const Icon(Icons.share, color: Colors.white, size: 32),

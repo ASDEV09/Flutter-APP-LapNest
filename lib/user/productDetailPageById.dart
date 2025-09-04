@@ -679,31 +679,50 @@ class _ProductDetailPageByIdState extends State<ProductDetailPageById> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                // ✅ agar quantity == 0 hai to "Add to Wishlist"
+                if ((productData!['quantity'] ?? 0) == 0)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // 🔴 red background
+                        foregroundColor: Colors.white, // 🤍 white text
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => toggleWishlist(context),
+                      icon: const Icon(Icons.favorite, color: Colors.white),
+                      label: const Text('Add to Wishlist'),
                     ),
-                    onPressed: () => addToCart(context),
-                    icon: const Icon(
-                      Icons.add_shopping_cart,
-                      color: Colors.white,
+                  )
+                else
+                  // ✅ warna "Add to Cart" dikhaye
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      onPressed: () => addToCart(context),
+                      icon: const Icon(
+                        Icons.add_shopping_cart,
+                        color: Colors.white,
+                      ),
+                      label: const Text('Add to Cart'),
                     ),
-                    label: const Text('Add to Cart'),
                   ),
-                ),
 
                 const SizedBox(width: 16),
-                IconButton(
-                  icon: Icon(
-                    isInWishlist ? Icons.favorite : Icons.favorite_border,
-                    color: isInWishlist ? Colors.red : Colors.white,
-                    size: 32,
+
+                // ✅ Heart (wishlist icon) sirf tab dikhaye jab quantity > 0 ho
+                if ((productData!['quantity'] ?? 0) > 0)
+                  IconButton(
+                    icon: Icon(
+                      isInWishlist ? Icons.favorite : Icons.favorite_border,
+                      color: isInWishlist ? Colors.red : Colors.white,
+                      size: 32,
+                    ),
+                    onPressed: () => toggleWishlist(context),
                   ),
-                  onPressed: () => toggleWishlist(context),
-                ),
 
                 const SizedBox(width: 16),
                 IconButton(

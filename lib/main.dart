@@ -1,3 +1,4 @@
+import 'package:app/admin/addBrand.dart';
 import 'package:app/admin/adminScreen.dart';
 import 'package:app/user/AllProducts.dart';
 import 'package:app/admin/addoffer.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       initialRoute: '/allproducts',
       routes: {
+        '/brand': (context) => AddBrand(),
         '/cancle': (context) => MyCancelledOrders(),
         '/allproducts': (context) => AllProducts(),
         '/ProductsList': (context) => ProductsList(),
