@@ -17,7 +17,7 @@ import 'package:app/admin/deactiveProduct.dart';
 import 'package:app/admin/admin_orders_page.dart';
 import 'package:app/admin/userlist.dart';
 import 'package:app/SignInScreen.dart';
-
+import 'addBrand.dart';
 class AppDrawer extends StatefulWidget {
   final User? user;
 
@@ -167,33 +167,37 @@ class _AppDrawerState extends State<AppDrawer> {
               onTap: () => _navigate(context, const AdminPanelScreen()),
             ),
 
-            _buildExpansionTile(
-              title: 'Products',
-              icon: Icons.shopping_bag,
-              children: [
-                _buildMenuItem(
-                  icon: Icons.list,
-                  title: 'All Products',
-                  onTap: () => _navigate(context, const ProductsList()),
-                ),
-                _buildMenuItem(
-                  icon: Icons.add,
-                  title: 'Add Product',
-                  onTap: () => _navigate(context, const Addproduct()),
-                ),
-                _buildMenuItem(
-                  icon: Icons.check_circle,
-                  title: 'Active Products',
-                  onTap: () => _navigate(context, const Activeproduct()),
-                ),
-                _buildMenuItem(
-                  icon: Icons.cancel,
-                  title: 'Deactive Products',
-                  onTap: () => _navigate(context, const DeactivatedProductsList()),
-                ),
-              ],
-            ),
-
+_buildExpansionTile(
+  title: 'Products',
+  icon: Icons.shopping_bag,
+  children: [
+    _buildMenuItem(
+      icon: Icons.list,
+      title: 'All Products',
+      onTap: () => _navigate(context, const ProductsList()),
+    ),
+    _buildMenuItem(
+      icon: Icons.add,
+      title: 'Add Product',
+      onTap: () => _navigate(context, const Addproduct()),
+    ),
+    _buildMenuItem(
+      icon: Icons.check_circle,
+      title: 'Active Products',
+      onTap: () => _navigate(context, const Activeproduct()),
+    ),
+    _buildMenuItem(
+      icon: Icons.cancel,
+      title: 'Deactive Products',
+      onTap: () => _navigate(context, const DeactivatedProductsList()),
+    ),
+    _buildMenuItem(
+      icon: Icons.branding_watermark, // ✅ brand ka icon
+      title: 'Add Brand',
+      onTap: () => _navigate(context, const AddBrand()),
+    ),
+  ],
+),
             _buildListTile(
               icon: Icons.question_answer,
               title: 'Add FAQs',
