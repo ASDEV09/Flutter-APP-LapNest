@@ -79,6 +79,64 @@ class _AddBrandState extends State<AddBrand> {
     }
   }
 
+  Future<void> editBrand(String id, String oldName) async {
+    final TextEditingController editController =
+        TextEditingController(text: oldName);
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E2440),
+        title: const Text("Edit Brand", style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: editController,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: "Enter new brand name",
+            hintStyle: TextStyle(color: Colors.white54),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.deepPurple),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (editController.text.isNotEmpty) {
+                await brands.doc(id).update({'name': editController.text});
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Brand updated successfully ✔"),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            child: const Text("Update"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> deleteBrand(String id) async {
+    await brands.doc(id).delete();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Brand deleted successfully ❌"),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   InputDecoration darkInputDecoration(String hint, IconData icon) {
     return InputDecoration(
       prefixIcon: Icon(icon, color: Colors.white),
@@ -121,35 +179,18 @@ class _AddBrandState extends State<AddBrand> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF0A0F2C),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.transparent,
-            border: Border(bottom: BorderSide(color: Colors.white, width: 1.0)),
-          ),
-          child: Builder(
-            builder: (context) => AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Text(
-                'Add Brand',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              iconTheme: const IconThemeData(color: Colors.white),
-              leading: IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Add Brand',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       drawer: AppDrawer(user: currentUser),
 
@@ -164,7 +205,8 @@ class _AddBrandState extends State<AddBrand> {
                 )
               : Padding(
                   padding: const EdgeInsets.all(20),
-                  child: ListView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildLabel("Brand Name"),
                       TextField(
@@ -173,19 +215,90 @@ class _AddBrandState extends State<AddBrand> {
                         decoration: darkInputDecoration(
                             "Enter brand name", Icons.branding_watermark),
                       ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: addBrand,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                      const SizedBox(height: 20),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: addBrand,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16, horizontal: 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: const Text(
+                            "Add Brand",
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white),
                           ),
                         ),
-                        child: const Text(
-                          "Add Brand",
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      const SizedBox(height: 30),
+                      Text(
+                        "All Brands",
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: StreamBuilder<QuerySnapshot>(
+                          stream: brands.orderBy('createdAt').snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            if (!snapshot.hasData ||
+                                snapshot.data!.docs.isEmpty) {
+                              return const Center(
+                                child: Text(
+                                  "No brands added yet",
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                              );
+                            }
+
+                            return ListView(
+                              children: snapshot.data!.docs.map((doc) {
+                                final data =
+                                    doc.data() as Map<String, dynamic>;
+                                final name = data['name'] ?? 'Unnamed';
+                                return Card(
+                                  color: const Color(0xFF1E2440),
+                                  child: ListTile(
+                                    title: Text(
+                                      name,
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.edit,
+                                              color: Colors.blue),
+                                          onPressed: () =>
+                                              editBrand(doc.id, name),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete,
+                                              color: Colors.red),
+                                          onPressed: () =>
+                                              deleteBrand(doc.id),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          },
                         ),
                       ),
                     ],
@@ -200,3 +313,8 @@ class _AddBrandState extends State<AddBrand> {
     super.dispose();
   }
 }
+
+
+
+
+
