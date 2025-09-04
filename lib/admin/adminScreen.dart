@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:app/signInScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:app/admin/addBrand.dart'; 
 import 'app_drawer.dart';
 
 class AdminPanelScreen extends StatefulWidget {
@@ -116,9 +116,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                 onPressed: _logout,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
-                  
                 ),
-                child: const Text("Go to Login", style: TextStyle(color: Colors.white),),
+                child: const Text(
+                  "Go to Login",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -164,6 +166,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               style: GoogleFonts.poppins(color: Colors.white70, fontSize: 16),
             ),
             const SizedBox(height: 20),
+
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -248,12 +251,21 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                       );
                     },
                   ),
+                  _buildCard(
+                    'Add Brand', // ✅ New Card
+                    Icons.branding_watermark,
+                    Colors.indigo,
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const AddBrand()),
+                      );
+                    },
+                  ),
                   _buildCard('My App', Icons.home, Colors.pink, () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AllProducts(),
-                      ), 
+                      MaterialPageRoute(builder: (_) => const AllProducts()),
                     );
                   }),
                 ],
@@ -293,7 +305,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
               title,
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
-                fontSize: 13, 
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
